@@ -55,7 +55,7 @@ def start_addon(addon: typing.Dict[str, typing.Any],
 ```
 Start addon is second most important function after [create_addon](#create_addon). It is responsible for starting of communication
 between Bookmap application and Python script. You must call it only once after you are done with addon configuration. Usually it happens when you
-add all event handlers to the addon (see [Event handlers](#Event handlers)).
+add all event handlers to the addon see [Event handlers](#Event-handlers).
 
 The function receives three parameters: 
 1. addon - is the addon itself, state object received by calling [create_addon](#create_addon).
