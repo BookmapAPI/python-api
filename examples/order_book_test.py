@@ -24,7 +24,8 @@ def handle_depth_info(addon, alias, is_bid, price, size):
     order_book = alias_to_orber_book[alias]
     # on_depth method updates internal order book
     bm.on_depth(order_book, is_bid, price, size)
-    print("Depth: bid: " + str(is_bid) + ", price: " + str(price) + ", size: " + str(size), flush=True)
+    print("Depth: bid: " + str(is_bid) + ", price: " +
+          str(price) + ", size: " + str(size), flush=True)
     # get liquidity for 20 levels from both side from current order book
     bid, ask = bm.get_sum(order_book, 20)
     print("Bid sum: " + str(bid) + ", ask sum: " + str(ask), flush=True)

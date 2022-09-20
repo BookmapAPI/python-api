@@ -35,7 +35,8 @@ def handle_instrument_info(addon, alias: str, full_name: str, is_crypto: bool, p
     # is request id - redundant here, since we have only one indicator, so only one bm.handle_indicator_response is
     # expected. In case number of indicators used by the script is more than 1, request id helps to match response
     # with registering request
-    bm.register_indicator(addon, alias, indicator_req_id, "Python CVD", "BOTTOM")
+    bm.register_indicator(addon, alias, indicator_req_id,
+                          "Python CVD", "BOTTOM")
 
     # subscription to trade, third parameter is request id which is useful when you do multiple subscriptions state of which you need to track
     bm.subscribe_to_trades(addon, alias, 1)
@@ -47,7 +48,8 @@ def handle_indicator_response(addon, request_id, indicator_id):
     global alias_to_cvd_indicator_id
     global req_id_to_alias
     alias = req_id_to_alias[request_id]
-    alias_to_cvd_indicator_id[alias] = indicator_id  # remember indicator id to be able to update it
+    # remember indicator id to be able to update it
+    alias_to_cvd_indicator_id[alias] = indicator_id
 
 
 # callback for trade events received by an instrument
@@ -62,12 +64,12 @@ def handle_trades(addon, alias: str, price: float, size: int, is_otc: bool, is_b
         print("Lack of instrument...", flush=True)
         return
 
-    #get cvd indicator id for this alias
+    # get cvd indicator id for this alias
     cvd_indicator_id = alias_to_cvd_indicator_id[alias]
     # get size granularity to save sizes in correct form
     size_granularity = alias_to_size_granularity[alias]
 
-    # by (size / size_granularity) size in ticks is converted to size in fiat currency in case if pair is traded in fiat currency 
+    # by (size / size_granularity) size in ticks is converted to size in fiat currency in case if pair is traded in fiat currency
     if is_bid:
         cvd_accumulator[alias] += size / size_granularity
     else:
@@ -87,6 +89,9 @@ def handle_detach_instrument(addon, alias):
 if __name__ == "__main__":
     addon = bm.create_addon()  # creating an addon, main first statement
     bm.add_trades_handler(addon, handle_trades)  # register callback for trades
-    bm.add_indicator_response_handler(addon, handle_indicator_response)  # register indicator response callback
-    bm.start_addon(addon, handle_instrument_info, handle_detach_instrument)  # starting an addon
-    bm.wait_until_addon_is_turned_off(addon)  # give control over python scrip to Bookmap, so it won't be finished until it is turned off from Bookmap
+    # register indicator response callback
+    bm.add_indicator_response_handler(addon, handle_indicator_response)
+    bm.start_addon(addon, handle_instrument_info,
+                   handle_detach_instrument)  # starting an addon
+    # give control over python scrip to Bookmap, so it won't be finished until it is turned off from Bookmap
+    bm.wait_until_addon_is_turned_off(addon)
