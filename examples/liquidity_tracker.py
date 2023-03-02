@@ -1,6 +1,6 @@
 import pyl1api as bm
 
-alias_to_orber_book = {}
+alias_to_order_book = {}
 alias_to_instrument = {}
 alias_to_bid_liquidity_indicator = {}
 alias_to_ask_liquidity_indicator = {}
@@ -12,7 +12,7 @@ DEFAULT_LIQUIDITY_SIZE = 10
 
 def handle_instrument_info(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier):
     global req_id
-    global alias_to_orber_book
+    global alias_to_order_book
     global alias_to_instrument
     global liquidity_sizes
     global DEFAULT_LIQUIDITY_SIZE
@@ -26,7 +26,7 @@ def handle_instrument_info(addon, alias, full_name, is_crypto, pips, size_multip
         "instrument_multiplier": instrument_multiplier
     }
     alias_to_instrument[alias] = instrument
-    alias_to_orber_book[alias] = bm.create_order_book()
+    alias_to_order_book[alias] = bm.create_order_book()
     req_id += 1
     request_id_to_related_indicator_alias[req_id] = (alias, True)
     bm.register_indicator(addon, alias, req_id, "Bid sum",
@@ -44,27 +44,27 @@ def handle_instrument_info(addon, alias, full_name, is_crypto, pips, size_multip
 
 
 def handle_instrument_detached(addon, alias):
-    global alias_to_orber_book
+    global alias_to_order_book
     global alias_to_instrument
-    del alias_to_orber_book[alias]
+    del alias_to_order_book[alias]
     del alias_to_instrument[alias]
 
 
 def handle_depth_info(addon, alias, is_bid, price, size):
-    global alias_to_orber_book
-    order_book = alias_to_orber_book[alias]
+    global alias_to_order_book
+    order_book = alias_to_order_book[alias]
     bm.on_depth(order_book, is_bid, price, size)
 
 
 # callback triggered with periodic interval, right not it is not configurable and used
 def on_interval_draw_liquidity_info(addon):
-    global alias_to_orber_book
+    global alias_to_order_book
     global alias_to_ask_liquidity_indicator
     global alias_to_bid_liquidity_indicator
     global alias_to_instrument
     global liquidity_sizes
 
-    for alias, order_book in alias_to_orber_book.items():
+    for alias, order_book in alias_to_order_book.items():
         if alias in alias_to_ask_liquidity_indicator and alias in alias_to_bid_liquidity_indicator:
             ask_liquidity_indicator = alias_to_ask_liquidity_indicator[alias]
             bid_liquidity_indicator = alias_to_bid_liquidity_indicator[alias]

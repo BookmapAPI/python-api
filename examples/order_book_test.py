@@ -1,13 +1,13 @@
 import pyl1api as bm
 
-alias_to_orber_book = {}
+alias_to_order_book = {}
 
 
 def handle_instrument_info(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier):
-    global alias_to_orber_book
+    global alias_to_order_book
     print("Instrument received " + alias, flush=True)
     # create order book for each subscribed instrument
-    alias_to_orber_book[alias] = bm.create_order_book()
+    alias_to_order_book[alias] = bm.create_order_book()
     req_id = 1
     # subscribe to depth update for this instrument
     bm.subscribe_to_depth(addon, alias, req_id)
@@ -20,8 +20,8 @@ def handle_detach(addon, alias):
 
 # handler for depth. it receives information about side, price and size.
 def handle_depth_info(addon, alias, is_bid, price, size):
-    global alias_to_orber_book
-    order_book = alias_to_orber_book[alias]
+    global alias_to_order_book
+    order_book = alias_to_order_book[alias]
     # on_depth method updates internal order book
     bm.on_depth(order_book, is_bid, price, size)
     print("Depth: bid: " + str(is_bid) + ", price: " +
