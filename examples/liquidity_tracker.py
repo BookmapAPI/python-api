@@ -12,10 +12,6 @@ DEFAULT_LIQUIDITY_SIZE = 10
 
 def handle_instrument_info(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier):
     global req_id
-    global alias_to_order_book
-    global alias_to_instrument
-    global liquidity_sizes
-    global DEFAULT_LIQUIDITY_SIZE
 
     instrument = {
         "alias": alias,
@@ -44,26 +40,17 @@ def handle_instrument_info(addon, alias, full_name, is_crypto, pips, size_multip
 
 
 def handle_instrument_detached(addon, alias):
-    global alias_to_order_book
-    global alias_to_instrument
     del alias_to_order_book[alias]
     del alias_to_instrument[alias]
 
 
 def handle_depth_info(addon, alias, is_bid, price, size):
-    global alias_to_order_book
     order_book = alias_to_order_book[alias]
     bm.on_depth(order_book, is_bid, price, size)
 
 
 # callback triggered with periodic interval, right not it is not configurable and used
 def on_interval_draw_liquidity_info(addon):
-    global alias_to_order_book
-    global alias_to_ask_liquidity_indicator
-    global alias_to_bid_liquidity_indicator
-    global alias_to_instrument
-    global liquidity_sizes
-
     for alias, order_book in alias_to_order_book.items():
         if alias in alias_to_ask_liquidity_indicator and alias in alias_to_bid_liquidity_indicator:
             ask_liquidity_indicator = alias_to_ask_liquidity_indicator[alias]
@@ -81,10 +68,6 @@ def on_interval_draw_liquidity_info(addon):
 
 
 def handle_register_indicator_response(addon, request_id, indicator_id):
-    global alias_to_ask_liquidity_indicator
-    global alias_to_bid_liquidity_indicator
-    global request_id_to_related_indicator_alias
-
     alias, is_bid = request_id_to_related_indicator_alias[request_id]
     if is_bid:
         alias_to_bid_liquidity_indicator[alias] = indicator_id
@@ -95,7 +78,6 @@ def handle_register_indicator_response(addon, request_id, indicator_id):
 # handler called each time respective UI settings are changed. Value type depends on initial registered type,
 # might be floated, boolean, str, or tuple representing color
 def on_settings_change_handler(addon, alias: str, setting_name: str, field_type: str, new_value):
-    global liquidity_sizes
     print("Received settings changed " + str(alias) + " " + str(setting_name) +
           " " + str(field_type) + " " + str(new_value), flush=True)
 
