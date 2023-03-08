@@ -55,23 +55,23 @@ The returned addon state object is used in many other functions below.
 #### start_addon
 ```python
 # Call this to start the communication between your addon and Bookmap.
-bm.start_addon(addon, add_instrument_handler, detach_instrument_handler)
+bm.start_addon(addon, handle_subscribe_instrument, handle_unsubscribe_instrument)
 ```
 It starts the communication between Bookmap and your Python script. Call it once you have added all
 your [Event handlers](#Event-handlers).
 
-`add_instrument_handler` is a function that you should define. It will be called each time you
+`handle_subscribe_instrument` is a function that you should define. It will be called each time you
 enable the addon in Bookmap for a certain instrument. All handlers, including this one, must have
 a proper signature (a list of parameters), as defined below.
 
-`detach_instrument_handler` is similar to above, except is called when the user disables the addon
+`handle_unsubscribe_instrument` is similar to above, except is called when the user disables the addon
 for a certain instrument.
 
 Example:
 ```python
 import pyl1api as bm
 
-def add_instrument_handler(
+def handle_subscribe_instrument(
     addon: Any,
     alias: str,
     full_name: str,
@@ -93,7 +93,7 @@ def add_instrument_handler(
     """
     print("Subscribing to the instrument " + alias, flush=True)
 
-def detach_instrument_handler(
+def handle_unsubscribe_instrument(
     addon: Any,
     alias: str
 ) -> None:
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     addon = bm.create_addon()
     # start addon, requires 3 arguments - addon itself, handler for subscribe event
     # and handler for unsubscribe event
-    bm.start_addon(addon, add_instrument_handler, detach_instrument_handler)
+    bm.start_addon(addon, handle_subscribe_instrument, handle_unsubscribe_instrument)
     bm.wait_until_addon_is_turned_off(addon)
 ```
 
@@ -142,7 +142,7 @@ How to convert these levels to a real price or size? The rule are simple:
 > moment.
 
 How to know what the instrument's `pips` and `size_multiplier` values are? You receive them via the
-[add_instrument_handler](#start_addon) callback when the user subscribes to an instrument.
+[handle_subscribe_instrument](#start_addon) callback when the user subscribes to an instrument.
 
 ### Event handlers
 
