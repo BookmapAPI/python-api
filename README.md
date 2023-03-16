@@ -650,7 +650,7 @@ If `levels_num` is 1, you will receive size levels at the best bid and ask (same
 
 Note that a certain price level will be taken into account even if it has a zero size level. For
 example, if `levels_num` is 2, and best bid is at price level 100 of size level 1, 99 is empty,
-the method will count compute `1 + 0` and return `0`.
+the method will compute `1 + 0` and return `1`.
 
 #### create_mbo_book()
 
