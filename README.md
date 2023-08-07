@@ -114,6 +114,9 @@ if __name__ == "__main__":
     bm.wait_until_addon_is_turned_off(addon)
 ```
 
+***Important note: every time, when you see size in integer format instead of float, the actual size
+is the product of multiplication `size_multiplier` * `size`***
+
 #### wait_until_addon_is_turned_off
 
 ```python
@@ -146,18 +149,18 @@ How to know what the instrument's `pips` and `size_multiplier` values are? You r
 
 ### Event handlers
 
-Below are listed are many more event handlers, similar to the ones above, which Bookmap calls to
+Below are listed many more event handlers, similar to the ones above, which Bookmap calls to
 give your addon certain data about the instrument (order book updates, trades, etc.).
 
 Each handler is responsible for handling a certain type of event. You should implement all handlers
 that have the data you are interested in.
 
-There are two important requirements to handlers: 
-  1. Your handlers must follow the exact parameters specified here.
-  2. Your handlers should never block for too long / do some complex time-consuming code.
-     All the handlers are called from the same thread, so if one handler blocks for too long, it
-     will block all other handlers as well. In other words, never do `time.time(...)` or something
-     similar in your handlers, but instead spin up a separate thread to do time-consuming code.
+There are two important requirements to handlers:
+1. Your handlers must follow the exact parameters specified here.
+2. Your handlers should never block for too long / do some complex time-consuming code.
+   All the handlers are called from the same thread, so if one handler blocks for too long, it
+   will block all other handlers as well. In other words, never do `time.time(...)` or something
+   similar in your handlers, but instead spin up a separate thread to do time-consuming code.
 
 All handlers except two in [start_addon](#start_addon) are optional.
 
@@ -326,7 +329,7 @@ def handle_indicator_response(
 bm.add_on_settings_change_handler(addon, on_settings_change_handler)
 ```
 
-Adds a handler that gets called each time a certain addon settings value is changed by the user. 
+Adds a handler that gets called each time a certain addon settings value is changed by the user.
 You should ignore any settings changes which aren't supposed to be handled (TODO: clarify what this
 means).
 
@@ -397,6 +400,144 @@ def on_mbo(
     :param size_level:  The size level of the order book. Divide it by `size_multiplier` to get the size.
     """
 ```
+
+#### add_on_order_executed_handler
+```python
+# Call this if you need to receive events of yours order execution. Create your own
+# `on_order_executed` function.
+bm.add_on_order_executed_handler(addon, on_order_executed)
+```
+
+Adds handler for order execution events. See
+[subscribe_to_order_info](#subscribe_to_order_info).
+
+Example of handler:
+
+```python
+# addon - entity received from create_addon function
+# alias - string; it defines unique name of respective instrument
+# event - dictionary; it represents an order execution event. It has this structure:
+#               orderId: '3427547165' (string value)
+#               size: 1 (integer value) (size_multiplier applied here)
+#               price: 29232.3 (floating-point value)
+#               executionId: '87f74e91935c4b82983b86afeb9edd4a' (string value)
+#               time: 1691144611797 (integer value)
+#               isSimulated: False (boolean value)
+def on_order_executed(
+    addon: Any,
+    alias: str,
+    event: Dict[str, Any]
+) -> None:
+    """
+    This function is called each time there is a change in the order book.
+    
+    :param addon:   The addon state object that you received when calling `create_addon`.
+    :param alias:   The alias (name) of the instrument.
+    :param event:   The event dictionary representing an order execution event with the following keys:
+                    - 'orderId': (string) unique order id.
+                    - 'size': (int) integer size.
+                    - 'price': (float) floating-point price.
+                    - 'executionId': (string) execution id.
+                    - 'time': (int) integer timestamp.
+                    - 'isSimulated': (bool) boolean value representing whether the event is simulated.
+    """
+```
+
+#### add_on_order_updated_handler
+```python
+# Use this method to set up a handler that will be triggered whenever there is an update to one of your orders.
+# Create your own `on_order_updated` function to process the updated order information.
+bm.add_on_order_updated_handler(addon, on_order_updated)
+```
+This function adds a handler for order update events. Whenever there is a change in the status
+or attributes of an order, the on_order_updated function will be called.
+
+Example of the handler function:
+
+```python
+# addon - An entity received from the create_addon function
+# order_update - A dictionary representing the updated order. It has the following structure:
+#                {
+#                    'filledChanged': True/False (boolean value),
+#                    'unfilledChanged': True/False (boolean value),
+#                    'averageFillPriceChanged': True/False (boolean value),
+#                    'durationChanged': True/False (boolean value),
+#                    'statusChanged': True/False (boolean value),
+#                    'limitPriceChanged': True/False (boolean value),
+#                    'stopPriceChanged': True/False (boolean value),
+#                    'stopTriggeredChanged': True/False (boolean value),
+#                    'modificationTimeChanged': True/False (boolean value),
+#                    'instrumentAlias': 'TOMOUSDT@BNF' (string value),
+#                    'orderId': '36392434' (string value), USE THIS ID FOR ANY TRADING RELATED CALLS
+#                    'isBuy': True/False (boolean value),
+#                    'type': 'LMT' (string value),
+#                    'clientId': '36392434' (string value),
+#                    'doNotIncrease': True/False (boolean value),
+#                    'filled': 0 (integer value),
+#                    'unfilled': 5 (integer value),
+#                    'averageFillPrice': nan (float value),
+#                    'duration': 'GTC' (string value),
+#                    'status': 'WORKING' (string value),
+#                    'limitPrice': 1.0945 (float value),
+#                    'stopPrice': nan (float value),
+#                    'stopTriggered': True/False (boolean value),
+#                    'modificationUtcTime': 1691395710837 (integer value),
+#                    'isSimulated': False (boolean value),
+#                    'isDuplicate': False (boolean value)
+#                }
+def on_order_updated(
+    addon: Any,
+    order_update: Dict[str, Any]
+) -> None:
+    """
+    This function is called whenever there is an update to one of your orders.
+
+    :param addon:        The addon state object that you received when calling `create_addon`.
+    :param order_update: The dictionary representing the updated order with various key-value pairs.
+    """
+```
+Using the add_on_order_updated_handler method, you can conveniently handle and respond to any changes or
+updates in your orders within Bookmap.
+
+#### add_on_position_update_handler
+```python
+# Use this method to add a handler for position update events. When a position update occurs,
+# your custom `on_position_update` function will be called to process the updated position information.
+bm.add_on_position_update_handler(addon, on_position_update)
+```
+This function adds a handler for position update events. The on_position_update function will be triggered
+within particular interval. This is not a function that will be triggered ONLY if some changes in position
+occurred.
+
+Example of the handler function:
+
+```python
+# addon - An entity received from the create_addon function
+# position_update - A dictionary representing the updated position. It has the following structure:
+#                   {
+#                       'instrumentAlias': 'BTCUSDT@BNF' (string value),
+#                       'unrealizedPnl': -4.179 (float value),
+#                       'realizedPnl': 1.888 (float value),
+#                       'position': 2 (integer value),          (size_multiplier applied here)
+#                       'averagePrice': 29276.95 (float value),
+#                       'volume': 0 (integer value),            (size_multiplier applied here)
+#                       'workingBuys': 0 (integer value),
+#                       'workingSells': 0 (integer value),
+#                       'isDuplicate': False (boolean value)
+#                   }
+def on_position_update(
+    addon: Any,
+    position_update: Dict[str, Any]
+) -> None:
+    """
+    This function is called whenever there is an update to your position in an instrument.
+
+    :param addon:           The addon state object that you received when calling `create_addon`.
+    :param position_update: The dictionary representing the updated position with various key-value pairs.
+    """
+```
+With the add_on_position_update_handler method, you can easily manage and respond to any changes in your
+positions within Bookmap.
 
 ### Subscribe data (TODO: Move this higher)
 
@@ -476,6 +617,213 @@ trade event is always a real time event. It operates in the same way as
 [subscribe_to_depth](#subscribe_to_depth) i.e. it sends a response via special callback
 once it is subscribed.
 
+#### subscribe_to_order_info
+```python
+# Use this method to subscribe to order data. The `alias` parameter represents the instrument alias you receive
+# in the `handle_subscribe_instrument` callback. The `req_id` is an identifier that you can set yourself to
+# uniquely identify this subscription.
+bm.subscribe_to_trades(addon, alias, req_id)
+```
+
+Sends a request for order data. There are two core events related to your orders: order update and order execute.
+Subscribing to order data automatically triggers the `on_order_updated_handler` and
+`on_order_executed_handler` callbacks, which are set up using the [add_on_order_updated_handler](#add_on_order_updated_handler)
+and [add_on_order_executed_handler](#add_on_order_executed_handler) methods, respectively.
+
+#### subscribe_to_position_updates
+```python
+# Use this method to subscribe to position update events. The `alias` parameter represents the instrument alias you receive
+# in the `handle_subscribe_instrument` callback. The `req_id` is an identifier that you can set yourself to
+# uniquely identify this subscription.
+bm.subscribe_to_position_updates(addon, alias, req_id)
+```
+This function sends a request to subscribe to position update events. Each position update event provides
+information about changes in your position for a specific instrument and is always a real-time event.
+Similar to other subscription methods, a response is sent through a special callback once the
+subscription is successfully established.
+
+Once subscribed to position updates, the system will automatically trigger the `on_position_update` callback,
+which is set up using the `add_on_position_update_handler` method.
+
+By utilizing the `subscribe_to_position_updates` method, you can stay informed about changes in your positions,
+enabling you to make timely decisions and efficiently manage your trading portfolio.
+
+### Trading
+The callbacks below will allow you to create custom trading strategies within Python API.
+Note that it is mandatory to check `Is trading strategy` checkbox to allow addon to trade.
+
+#### send_order
+```python
+def send_order(addon: Dict[str, Any],
+               alias: str,
+               is_buy: bool,
+               size: int,
+               order_duration: str,
+               limit_price: float = float("nan"),
+               stop_price: float = float("nan")) -> None:
+```
+This function allows you to send different types of orders for a specific instrument in Bookmap.
+By default, the limit_price and stop_price are set to float("nan"), indicating
+a market order will be sent if these parameters are not intentionally specified.
+
+Parameters:
+
+- addon: The addon state object that you received when calling `create_addon`.
+- alias: The instrument alias (name) for which you want to place the order.
+- is_buy: A boolean value representing whether the order is a buy order (True) or a sell order (False).
+- size: The integer quantity of the order to be placed. The actual size = `size_multiplier` from `handle_subscribe_instrument` * `size`
+  (e.g. if you choose size multiplier 0.001 on BTCUSDT and call `bm.send_order` with size 5 then order
+  with size 0.001 * 5 = 0.005 will be sent)
+- order_duration: A string representing the duration of the order (e.g., 'GTC' for Good 'Til Cancelled, 'IOC'
+  for Immediate or Cancel). Supported order types: GTC, ATO, ATC, DAY, DYP, FOK, GCP, GDP, GTD, GTT, IOC, GTC_PO
+- limit_price: (Optional) The float value representing the limit price for limit or stop-limit orders. Set it
+  to float("nan") for market or stop orders.
+- stop_price: (Optional) The float value representing the stop price for stop or stop-limit orders.
+  Set it to float("nan") for market or limit orders.
+
+Description:
+
+The `send_order` function provides flexibility in placing different types of orders for a specific instrument in the trading system.
+By specifying the appropriate `limit_price` and `stop_price`, you can send limit orders, stop orders,
+or stop-limit orders as needed.
+If `limit_price` and `stop_price` are set to float("nan"), a market order will be sent.
+To send a limit order, specify a valid limit_price.
+To send a stop-limit order, specify both limit_price and stop_price.
+To send a stop order, set limit_price to float("nan") and specify a valid stop_price.
+
+Example:
+
+```python
+# Send a limit order to buy 10 units of BTCUSDT@BNF with a limit price of 30000.
+send_order(addon, 'BTCUSDT@BNF', True, 10, 'GTC', 30000)
+
+# Send a stop-limit order to sell 5 units of BTCUSDT@BNF with a limit price of 31000 and a stop price of 30500.
+send_order(addon, 'BTCUSDT@BNF', False, 5, 'GTC', 31000, 30500)
+
+# Send a stop order to buy 3 units of BTCUSDT@BNF with a stop price of 29000.
+send_order(addon, 'BTCUSDT@BNF', True, 3, 'GTC', float("nan"), 29000)
+```
+
+#### cancel_order
+```python
+def cancel_order(addon: Dict[str, Any],
+                 alias: str,
+                 order_id: str,
+                 is_batch_end: bool = True,
+                 batch_id: int = float("nan")) -> None:
+```
+This function is used to cancel one or multiple orders for a specific instrument in Bookmap.
+If you want to cancel several orders in batch, you can specify the is_batch_end and batch_id
+arguments. If only order_id is specified, only a single order will be cancelled.
+If is_batch_end is set to False, a unique batch_id will be automatically generated.
+
+Parameters:
+
+- addon: The addon state object that you received when calling `create_addon`.
+- alias: The instrument alias (name) for which you want to cancel the order.
+- order_id: The unique identifier of the order to be cancelled. For batch cancellation,
+  you will need to call several `bm.cancel_order` with proper specification of `is_batch_end` and `batch_id`.
+- is_batch_end: A boolean value indicating whether this is the last order to cancel in the batch (default is True).
+- batch_id: (Optional) An integer value representing the batch ID for the order cancellation
+  (default is `float("nan")`). If not provided, a unique batch ID will be generated automatically.
+
+Description:
+
+The cancel_order function allows you to efficiently cancel orders for a specific instrument.
+By using the batch cancellation feature (`is_batch_end=True`), you can cancel multiple orders
+simultaneously by providing the appropriate `batch_id`. Alternatively, set `is_batch_end=False`
+to generate an automatic batch ID. It is recommended to create your own `batch_id`
+
+Example:
+
+```python
+# Cancel a single order with order ID '4567' for instrument 'BTCUSDT@BNF'.
+cancel_order(addon, 'BTCUSDT@BNF', '4567')
+
+# Cancel multiple orders in batch with order IDs '1234', '2345', '3456' for instrument 'ETHUSDT@BNF'.
+cancel_order(addon, 'ETHUSDT@BNF', '1234', is_batch_end=False, batch_id=123)
+cancel_order(addon, 'ETHUSDT@BNF', '2345', is_batch_end=False, batch_id=123)
+cancel_order(addon, 'ETHUSDT@BNF', '3456', is_batch_end=True, batch_id=123)
+```
+
+#### move_order
+```python
+def move_order(addon: Dict[str, Any],
+               alias: str,
+               order_id: str,
+               limit_price: float,
+               stop_price: float = float("nan")) -> None:
+```
+This function is used to move an existing order for a specific instrument in Bookmap.
+By specifying the `limit_price` and `stop_price`, you can update the order with new values.
+Set limit_price to `float("nan")` if the order doesn't have a limit price, and set `stop_price`
+to `float("nan")` if the order doesn't have a stop price (`stop_price` is nan by default).
+
+Parameters:
+
+- addon: The addon state object that you received when calling `create_addon`.
+- alias: The instrument alias (name) for which you want to move the order.
+- order_id: The unique identifier of the order to be moved.
+- limit_price: The float value representing the new limit price for the order.
+  Set it to `float("nan")` if the order doesn't have a limit price.
+- stop_price: (Optional) The float value representing the new stop price for the order.
+  Set it to `float("nan")` if the order doesn't have a stop price (default is `float("nan")`).
+
+Description:
+
+The move_order function allows you to update the limit price and stop price of an existing order
+for a specific instrument. If you want to modify the limit price only, provide the new `limit_price`
+and set `stop_price` to `float("nan")`. If you want to modify both the limit and stop prices,
+provide the new values for both `limit_price` and `stop_price`.
+
+Example:
+
+```python
+# Move an order with order ID '7890' for instrument 'BTCUSDT@BNF' with a new limit price of 35000.
+move_order(addon, 'BTCUSDT@BNF', '7890', 35000)
+
+# Move an order with order ID '1234' for instrument 'ETHUSDT@BNF' with a new limit price of 1.300 and a new stop price of 1.250.
+move_order(addon, 'ETHUSDT@BNF', '1234', 1.300, 1.250)
+
+# Move an order with order ID '4567' for instrument 'XRPUSDT@BNF' with a new stop price of 0.900. Order will no longer be limit
+move_order(addon, 'XRPUSDT@BNF', '4567', float("nan"), 0.900)
+```
+
+#### resize_order
+```python
+def resize_order(addon: Dict[str, Any],
+                 alias: str,
+                 order_id: str,
+                 size: int) -> None:
+```
+This function is used to resize an existing order for a specific instrument in Bookmap.
+By specifying the `size`, you can update the quantity of the order.
+
+Parameters:
+
+- addon: The addon state object that you received when calling `create_addon`.
+- alias: The instrument alias (name) for which you want to resize the order.
+- order_id: The unique identifier of the order to be resized.
+- size: The integer value representing the new size (quantity) for the order (size_multiplier applied here)
+
+Description:
+
+The resize_order function allows you to modify the size (quantity) of an existing order for a specific instrument.
+By providing the new size, you can increase or decrease the quantity of the order as needed.
+
+Example:
+
+```python
+# Resize an order with order ID '7890' for instrument 'BTCUSDT@BNF' to a new size of 15 units.
+resize_order(addon, 'BTCUSDT@BNF', '7890', 15)
+
+# Resize an order with order ID '1234' for instrument 'ETHUSDT@BNF' to a new size of 8 units.
+resize_order(addon, 'ETHUSDT@BNF', '1234', 8)
+
+# Resize an order with order ID '4567' for instrument 'XRPUSDT@BNF' to a new size of 20 units.
+resize_order(addon, 'XRPUSDT@BNF', '4567', 20)
+```
+
 ### Indicators
 Indicators allow you to draw curves on the Bookmap heatmap or on the bottom chart.
 
@@ -500,7 +848,7 @@ bm.register_indicator(
 The method allows to register an indicator in Bookmap. After calling it, you will receive a
 callback in [add_indicator_response_handler](#add_indicator_response_handler) which you must handle.
 That response contains **indicator_id** integer value, which is used to identify the indicator.
-Every indicator in scope of a single addon run will have a unique ID, across all instruments. 
+Every indicator in scope of a single addon run will have a unique ID, across all instruments.
 
 A certain instrument is allowed to have multiple indicators.
 
@@ -643,7 +991,7 @@ bids_size_levels_sum, asks_size_levels_sum = bm.get_sum(order_book, levels_num)
 Returns the sum of size levels per side, up to `levels_num` levels, where each level is one `pips`.
 
 For example, if `levels_num` is 5, then the function will return the sum of size levels of 5 first
-price levels, separately for bids and asks. 
+price levels, separately for bids and asks.
 
 If `levels_num` is 1, you will receive size levels at the best bid and ask (same size levels as
 `get_bbo` returns).
