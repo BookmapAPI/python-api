@@ -1,4 +1,4 @@
-import pyl1api as bm  # mandatory BM import
+import bookmap as bm  # mandatory BM import
 
 # dict [alias, trade volume)
 cvd_accumulator = {}
