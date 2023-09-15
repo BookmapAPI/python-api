@@ -743,7 +743,7 @@ order_params_limit_buy = bm.OrderSendParameters("BTCUSDT@BNF", True, 10)
 order_params_limit_buy.limit_price = 30000
 
 # Send the limit buy order
-send_order(addon, order_params_limit_buy)
+bm.send_order(addon, order_params_limit_buy)
 
 # Create an OrderSendParameters instance for a stop-limit order to sell 5 units of 
 # BTCUSDT@BNF with a limit price of 31000 and a stop price of 30500.
@@ -752,14 +752,14 @@ order_params_stop_limit_sell.limit_price = 31000
 order_params_stop_limit_sell.stop_price = 30500
 
 # Send the stop-limit sell order
-send_order(addon, order_params_stop_limit_sell)
+bm.send_order(addon, order_params_stop_limit_sell)
 
 # Create an OrderSendParameters instance for a stop order to buy 3 units of BTCUSDT@BNF with a stop price of 29000.
 order_params_stop_buy = bm.OrderSendParameters("BTCUSDT@BNF", True, 3)
 order_params_stop_buy.stop_price = 29000
 
 # Send the stop buy order
-send_order(addon, order_params_stop_buy)
+bm.send_order(addon, order_params_stop_buy)
 ```
 
 #### cancel_order
@@ -795,13 +795,14 @@ to generate an automatic batch ID. It is recommended to create your own `batch_i
 Example:
 
 ```python
+import bookmap as bm
 # Cancel a single order with order ID '4567' for instrument 'BTCUSDT@BNF'.
-cancel_order(addon, 'BTCUSDT@BNF', '4567')
+bm.cancel_order(addon, 'BTCUSDT@BNF', '4567')
 
 # Cancel multiple orders in batch with order IDs '1234', '2345', '3456' for instrument 'ETHUSDT@BNF'.
-cancel_order(addon, 'ETHUSDT@BNF', '1234', is_batch_end=False, batch_id=123)
-cancel_order(addon, 'ETHUSDT@BNF', '2345', is_batch_end=False, batch_id=123)
-cancel_order(addon, 'ETHUSDT@BNF', '3456', is_batch_end=True, batch_id=123)
+bm.cancel_order(addon, 'ETHUSDT@BNF', '1234', is_batch_end=False, batch_id=123)
+bm.cancel_order(addon, 'ETHUSDT@BNF', '2345', is_batch_end=False, batch_id=123)
+bm.cancel_order(addon, 'ETHUSDT@BNF', '3456', is_batch_end=True, batch_id=123)
 ```
 
 #### move_order
@@ -837,14 +838,15 @@ provide the new values for both `limit_price` and `stop_price`.
 Example:
 
 ```python
+import bookmap as bm
 # Move an order with order ID '7890' for instrument 'BTCUSDT@BNF' with a new limit price of 35000.
-move_order(addon, 'BTCUSDT@BNF', '7890', 35000)
+bm.move_order(addon, 'BTCUSDT@BNF', '7890', 35000)
 
 # Move an order with order ID '1234' for instrument 'ETHUSDT@BNF' with a new limit price of 1.300 and a new stop price of 1.250.
-move_order(addon, 'ETHUSDT@BNF', '1234', 1.300, 1.250)
+bm.move_order(addon, 'ETHUSDT@BNF', '1234', 1.300, 1.250)
 
 # Move an order with order ID '4567' for instrument 'XRPUSDT@BNF' with a new stop price of 0.900. Order will no longer be limit
-move_order(addon, 'XRPUSDT@BNF', '4567', float("nan"), 0.900)
+bm.move_order(addon, 'XRPUSDT@BNF', '4567', float("nan"), 0.900)
 ```
 
 #### resize_order
@@ -872,14 +874,15 @@ By providing the new size, you can increase or decrease the quantity of the orde
 Example:
 
 ```python
+import bookmap as bm
 # Resize an order with order ID '7890' for instrument 'BTCUSDT@BNF' to a new size of 15 units.
-resize_order(addon, 'BTCUSDT@BNF', '7890', 15)
+bm.resize_order(addon, 'BTCUSDT@BNF', '7890', 15)
 
 # Resize an order with order ID '1234' for instrument 'ETHUSDT@BNF' to a new size of 8 units.
-resize_order(addon, 'ETHUSDT@BNF', '1234', 8)
+bm.resize_order(addon, 'ETHUSDT@BNF', '1234', 8)
 
 # Resize an order with order ID '4567' for instrument 'XRPUSDT@BNF' to a new size of 20 units.
-resize_order(addon, 'XRPUSDT@BNF', '4567', 20)
+bm.resize_order(addon, 'XRPUSDT@BNF', '4567', 20)
 ```
 
 ### Indicators
