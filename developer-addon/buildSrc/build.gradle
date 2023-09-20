@@ -1,0 +1,13 @@
+plugins {
+    id 'groovy-gradle-plugin'
+}
+
+repositories {
+    gradlePluginPortal()
+}
+
+dependencies {
+    implementation('com.diffplug.spotless:spotless-plugin-gradle:6.10.0')
+    implementation('org.checkerframework:checkerframework-gradle-plugin:0.6.23')
+    implementation('gradle.plugin.com.keith.gradle:keith-checkstyle-plugin:1.0.3')
+}

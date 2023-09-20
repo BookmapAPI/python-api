@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'com.diffplug.spotless'
+    id 'org.checkerframework'
+    id 'com.keith.gradle.keith-checkstyle-plugin'
+}
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+// Java 11 is the highest version we can use right now, despite Bookmap 7.2 using Java 14 since the backfill server is
+// currently supporting only Java 11.
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+// https://docs.gradle.org/current/userguide/resolution_strategy_tuning.html
+configurations.configureEach {
+    resolutionStrategy {
+        // fail eagerly on version conflict (includes transitive dependencies)
+        // e.g. multiple different versions of the same dependency (group and name are equal)
+        failOnVersionConflict()
+        // fail on unpinned versions like 'latest.release' or 'SNAPSHOT'
+        failOnNonReproducibleResolution()
+    }
+}
+
+checkstyle {
+    toolVersion = '10.3.1'
+    config = resources.text.fromUri(getClass().getResource('checkstyle.xml'))
+    configProperties = ['checkstyle.cache.file': rootProject.file("${buildDir}/checkstyle.cache")]
+}
+checkerFramework {
+
+    // It requires additional configuration in gradle.build in the root project
+    // We should specify files that should be checked for return null
+//    checkers = [
+//            'org.checkerframework.checker.nullness.NullnessChecker'
+//    ]
+    extraJavacArgs = [
+            '-Werror',
+            // for formatter compatibility
+            '-AsuppressWarnings=type.anno.before.modifier'
+    ]
+}
+
+spotless {
+    java {
+        prettier(['prettier': '2.7.1', 'prettier-plugin-java': '2.0.0']).config([
+                'parser': 'java',
+                'tabWidth': 4,
+                'printWidth': 120,
+                'trailingComma': 'all',
+                'endOfLine': 'auto'
+        ])
+    }
+}
+
+tasks.register('fmt') {
+    dependsOn spotlessApply
+}
+
+idea {
+    module {
+        downloadJavadoc = true
+        downloadSources = true
+    }
+}

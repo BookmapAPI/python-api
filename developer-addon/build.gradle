@@ -1,0 +1,65 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+plugins {
+    id 'com.bookmap.layer0.common-conventions'
+}
+
+apply plugin: 'java'
+
+// This is optional, tells gradle that we want Java 14 compatible bytecode.
+// Can be removed in standalone addons
+// TODO: Since Bookmap 7.4 I think we can use Java 17.
+sourceCompatibility = JavaVersion.VERSION_14
+targetCompatibility = JavaVersion.VERSION_14
+
+String LOWEST_BOOKMAP_VERSION = '7.3.0.46'
+String HIGHEST_BOOKMAP_VERSION = '7.5.1.9999'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://maven.bookmap.com/maven2/releases/"
+    }
+}
+
+configurations {
+    fatJarLib
+    implementation.canBeResolved = true
+}
+
+def version = "0.1.0"
+def baseName = "${LOWEST_BOOKMAP_VERSION}---${HIGHEST_BOOKMAP_VERSION}---2---python-api---${version}"
+
+dependencies {
+    configurations.implementation.extendsFrom(configurations.fatJarLib)
+
+    // Python syntax highlighting.
+    // See here which is the latest version:
+    // https://github.com/bobbylight/RSyntaxTextArea/releases
+    fatJarLib group: 'com.fifesoft', name: 'rsyntaxtextarea', version: '3.3.2'
+    // https://mvnrepository.com/artifact/org.ow2.asm/asm
+    fatJarLib group: 'org.ow2.asm', name: 'asm', version: '9.3'
+    // https://mvnrepository.com/artifact/org.ow2.asm/asm-commons
+    fatJarLib group: 'org.ow2.asm', name: 'asm-commons', version: '9.3'
+
+    implementation group: 'com.bookmap.api', name: 'api-core', version: '7.3.0.26'
+    implementation group: 'com.bookmap.api', name: 'api-simplified', version: '7.3.0.26'
+
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.4.2'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    archiveFileName = "${baseName}.jar"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.fatJarLib.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}

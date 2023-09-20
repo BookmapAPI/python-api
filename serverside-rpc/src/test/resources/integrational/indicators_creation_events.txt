@@ -1,0 +1,12 @@
+0
+9AAPL@DXFEED11Test bottom Indicator SOLID lineBOTTOM1.0110,0,255SOLID1
+9AAPL@DXFEED12Test bottom SHORT DASH IndicatorBOTTOM1.0110,0,255SHORT_DASH1
+9AAPL@DXFEED13Test bottom LONG DASH IndicatorBOTTOM1.0110,0,255LONG_DASH1
+9AAPL@DXFEED14Test bottom DOT DASH IndicatorBOTTOM1.0110,0,255DOT1
+9AAPL@DXFEED15Test bottom DASH DOT IndicatorBOTTOM1.0110,0,255DASH_DOT1
+9AAPL@DXFEED16Test primary SHORT dash IndicatorPRIMARY1.0110,0,255SHORT_DASH1
+9AAPL@DXFEED17Test NONE SHORT dash IndicatorNONE1.0110,0,255SHORT_DASH1
+9AAPL@DXFEED18Test bottom DASH DOT Indicator without widgetBOTTOM1.0100,0,255DASH_DOT1
+9AAPL@DXFEED19Test bottom DASH DOT Indicator not showing line by defaultBOTTOM1.0010,0,255DASH_DOT1
+9AAPL@DXFEED20Test bottom DASH DOT Indicator not modifiableBOTTOM1.0110,0,255DASH_DOT0
+9AAPL@DXFEED21Test bottom DASH DOT Indicator with custom colorBOTTOM1.011244,114,203DASH_DOT1
