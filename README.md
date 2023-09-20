@@ -99,7 +99,7 @@ def handle_unsubscribe_instrument(
 ) -> None:
     """
     This function is called each time the user disables your addon for a certain instrument.
-    
+
     :param addon: The addon state object that you received when calling `create_addon`.
     :param alias: The alias (name) of the instrument.
     """
@@ -191,7 +191,7 @@ def on_depth(
 ) -> None:
     """
     This function is called each time there is a change in the order book.
-    
+
     :param addon:       The addon state object that you received when calling `create_addon`.
     :param alias:       The alias (name) of the instrument.
     :param is_bid:      Whether the price level is a bid (True) or an ask (False).
@@ -226,7 +226,7 @@ def handle_trades(
 ) -> None:
     """
     This function is called each time a trade happens in the market.
-    
+
     :param addon:                The addon state object that you received when calling `create_addon`.
     :param alias:                The alias (name) of the instrument.
     :param price_level:          The price of the trade. Multiply it by `pips` to get the price.
@@ -264,7 +264,7 @@ def add_subscribe_data_response_handler(
 ) -> None:
     """
     Gets called when Bookmap informs your addon that a certain handler has been successfully added.
-    
+
     :param addon:  The addon state object that you received when calling `create_addon`.
     :param req_id: The request id specified in subscribe_* function.
     """
@@ -290,7 +290,7 @@ def on_interval(
 ) -> None:
     """
     This function is called at each 0.1 second time interval.
-    
+
     :param addon: The addon state object that you received when calling `create_addon`.
     :param alias: The unique instrument name you receive in `handle_subscribe_instrument`.
     """
@@ -318,7 +318,7 @@ def handle_indicator_response(
 ) -> None:
     """
     This function is called after you create an indicator, in response to `register_indicator`.
-    
+
     :param addon:        The addon state object that you received when calling `create_addon`.
     :param request_id:   The request id specified in `register_indicator`.
     :param indicator_id: The indicator id assigned to the indicator.
@@ -375,7 +375,7 @@ Example of handler:
 ```python
 # addon - entity received from create_addon function
 # alias - string; it defines unique name of respective instrument
-# event_type - string; possible values can be 
+# event_type - string; possible values can be
 #               ASK_NEW - new ASK order,
 #               BID_NEW - new BID order,
 #               REPLACE - order updated (size or price is changed),
@@ -393,7 +393,7 @@ def on_mbo(
 ) -> None:
     """
     This function is called each time there is a change in the order book.
-    
+
     :param addon:       The addon state object that you received when calling `create_addon`.
     :param alias:       The alias (name) of the instrument.
     :param event_type:  The type of the MBO event.
@@ -432,7 +432,7 @@ def on_order_executed(
 ) -> None:
     """
     This function is called each time there is a change in the order book.
-    
+
     :param addon:   The addon state object that you received when calling `create_addon`.
     :param alias:   The alias (name) of the instrument.
     :param event:   The event dictionary representing an order execution event with the following keys:
@@ -745,7 +745,7 @@ order_params_limit_buy.limit_price = 30000
 # Send the limit buy order
 bm.send_order(addon, order_params_limit_buy)
 
-# Create an OrderSendParameters instance for a stop-limit order to sell 5 units of 
+# Create an OrderSendParameters instance for a stop-limit order to sell 5 units of
 # BTCUSDT@BNF with a limit price of 31000 and a stop price of 30500.
 order_params_stop_limit_sell = bm.OrderSendParameters("BTCUSDT@BNF", False, 5)
 order_params_stop_limit_sell.limit_price = 31000
