@@ -1,4 +1,4 @@
-import pyl1api as bm
+import bookmap as bm
 
 alias_to_order_book = {}
 alias_to_instrument = {}
@@ -50,7 +50,7 @@ def handle_depth_info(addon, alias, is_bid, price, size):
 
 
 # callback triggered with periodic interval, right not it is not configurable and used
-def on_interval_draw_liquidity_info(addon):
+def on_interval_draw_liquidity_info(addon, alias):
     for alias, order_book in alias_to_order_book.items():
         if alias in alias_to_ask_liquidity_indicator and alias in alias_to_bid_liquidity_indicator:
             ask_liquidity_indicator = alias_to_ask_liquidity_indicator[alias]

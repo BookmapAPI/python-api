@@ -25,11 +25,11 @@ machine. Earlier versions of Python 3 are not supported officially, but may stil
 
 ### Library import
 
-Every Bookmap API script has to import the `pyl1api` library. You may want to set the alias to `bm`
+Every Bookmap API script has to import the `bookmap` library. You may want to set the alias to `bm`
 for convenience.
 
 ```python
-import pyl1api as bm
+import bookmap as bm
 ```
 
 Additionally, since we use the type hints below to denote parameter types, you may want to import
@@ -69,7 +69,7 @@ for a certain instrument.
 
 Example:
 ```python
-import pyl1api as bm
+import bookmap as bm
 
 def handle_subscribe_instrument(
     addon: Any,
@@ -99,7 +99,7 @@ def handle_unsubscribe_instrument(
 ) -> None:
     """
     This function is called each time the user disables your addon for a certain instrument.
-    
+
     :param addon: The addon state object that you received when calling `create_addon`.
     :param alias: The alias (name) of the instrument.
     """
@@ -191,7 +191,7 @@ def on_depth(
 ) -> None:
     """
     This function is called each time there is a change in the order book.
-    
+
     :param addon:       The addon state object that you received when calling `create_addon`.
     :param alias:       The alias (name) of the instrument.
     :param is_bid:      Whether the price level is a bid (True) or an ask (False).
@@ -226,7 +226,7 @@ def handle_trades(
 ) -> None:
     """
     This function is called each time a trade happens in the market.
-    
+
     :param addon:                The addon state object that you received when calling `create_addon`.
     :param alias:                The alias (name) of the instrument.
     :param price_level:          The price of the trade. Multiply it by `pips` to get the price.
@@ -264,7 +264,7 @@ def add_subscribe_data_response_handler(
 ) -> None:
     """
     Gets called when Bookmap informs your addon that a certain handler has been successfully added.
-    
+
     :param addon:  The addon state object that you received when calling `create_addon`.
     :param req_id: The request id specified in subscribe_* function.
     """
@@ -278,7 +278,7 @@ bm.add_on_interval_handler(addon, on_interval)
 ```
 
 Adds an interval event handler. Interval is a special type of event sent by Bookmap to the addon
-every 1 second. This is useful handler if you have to do some actions (like updating of indicator,
+every 0.1 second. This is useful handler if you have to do some actions (like updating of indicator,
 calculating some value) every fixed time interval.
 
 Example of handler:
@@ -286,11 +286,13 @@ Example of handler:
 ```python
 def on_interval(
    addon: Any
+   alias: str
 ) -> None:
     """
-    This function is called at each 1 second time interval.
-    
+    This function is called at each 0.1 second time interval.
+
     :param addon: The addon state object that you received when calling `create_addon`.
+    :param alias: The unique instrument name you receive in `handle_subscribe_instrument`.
     """
 ```
 
@@ -316,7 +318,7 @@ def handle_indicator_response(
 ) -> None:
     """
     This function is called after you create an indicator, in response to `register_indicator`.
-    
+
     :param addon:        The addon state object that you received when calling `create_addon`.
     :param request_id:   The request id specified in `register_indicator`.
     :param indicator_id: The indicator id assigned to the indicator.
@@ -373,7 +375,7 @@ Example of handler:
 ```python
 # addon - entity received from create_addon function
 # alias - string; it defines unique name of respective instrument
-# event_type - string; possible values can be 
+# event_type - string; possible values can be
 #               ASK_NEW - new ASK order,
 #               BID_NEW - new BID order,
 #               REPLACE - order updated (size or price is changed),
@@ -391,7 +393,7 @@ def on_mbo(
 ) -> None:
     """
     This function is called each time there is a change in the order book.
-    
+
     :param addon:       The addon state object that you received when calling `create_addon`.
     :param alias:       The alias (name) of the instrument.
     :param event_type:  The type of the MBO event.
@@ -430,7 +432,7 @@ def on_order_executed(
 ) -> None:
     """
     This function is called each time there is a change in the order book.
-    
+
     :param addon:   The addon state object that you received when calling `create_addon`.
     :param alias:   The alias (name) of the instrument.
     :param event:   The event dictionary representing an order execution event with the following keys:
@@ -655,53 +657,109 @@ Note that it is mandatory to check `Is trading strategy` checkbox to allow addon
 #### send_order
 ```python
 def send_order(addon: Dict[str, Any],
-               alias: str,
-               is_buy: bool,
-               size: int,
-               order_duration: str,
-               limit_price: float = float("nan"),
-               stop_price: float = float("nan")) -> None:
+               order_send_parameters: OrderSendParameters
+               ) -> None:
 ```
 This function allows you to send different types of orders for a specific instrument in Bookmap.
-By default, the limit_price and stop_price are set to float("nan"), indicating
-a market order will be sent if these parameters are not intentionally specified.
 
 Parameters:
 
 - addon: The addon state object that you received when calling `create_addon`.
-- alias: The instrument alias (name) for which you want to place the order.
-- is_buy: A boolean value representing whether the order is a buy order (True) or a sell order (False).
-- size: The integer quantity of the order to be placed. The actual size = `size_multiplier` from `handle_subscribe_instrument` * `size`
-  (e.g. if you choose size multiplier 0.001 on BTCUSDT and call `bm.send_order` with size 5 then order
-  with size 0.001 * 5 = 0.005 will be sent)
-- order_duration: A string representing the duration of the order (e.g., 'GTC' for Good 'Til Cancelled, 'IOC'
-  for Immediate or Cancel). Supported order types: GTC, ATO, ATC, DAY, DYP, FOK, GCP, GDP, GTD, GTT, IOC, GTC_PO
-- limit_price: (Optional) The float value representing the limit price for limit or stop-limit orders. Set it
-  to float("nan") for market or stop orders.
-- stop_price: (Optional) The float value representing the stop price for stop or stop-limit orders.
-  Set it to float("nan") for market or limit orders.
+- order_send_parameters: The class that represents an order you want to send.
 
-Description:
+#### OrderSendParameters
 
-The `send_order` function provides flexibility in placing different types of orders for a specific instrument in the trading system.
-By specifying the appropriate `limit_price` and `stop_price`, you can send limit orders, stop orders,
-or stop-limit orders as needed.
-If `limit_price` and `stop_price` are set to float("nan"), a market order will be sent.
-To send a limit order, specify a valid limit_price.
-To send a stop-limit order, specify both limit_price and stop_price.
-To send a stop order, set limit_price to float("nan") and specify a valid stop_price.
+The `OrderSendParameters` class is designed to encapsulate the parameters required for placing
+different types of trading orders within Bookmap. This class is used in conjunction with the
+`send_order` function to provide flexibility when creating various types of orders for a specific financial instrument.
 
-Example:
+#### Class Attributes:
+
+1. `alias` (str): A unique instrument name for the order.
+
+2. `is_buy` (bool): A boolean value representing whether the order is a buy order (True) or a sell order (False).
+
+3. `size` (int): An integer representing the quantity of the order to be placed.
+   The actual size is calculated as `size_multiplier` from the `handle_subscribe_instrument` multiplied by `size`.
+   For example, if you choose a size multiplier of 0.001 on a specific instrument and set `size` to 5,
+   the order size will be calculated as 0.001 * 5 = 0.005.
+
+4. `limit_price` (float, optional): The float value representing the
+   limit price for limit or stop-limit orders.
+
+5. `stop_price` (float, optional): The float value representing the stop price for stop or stop-limit
+   orders.
+
+6. `take_profit_offset` (int, optional): The offset for setting the take-profit price, if applicable.
+
+7. `stop_loss_offset` (int, optional): The offset for setting the stop-loss price, if applicable.
+
+8. `stop_loss_trailing_step` (int, optional): The step value for trailing stop-loss orders, if applicable.
+
+9. `take_profit_client_id` (str, optional): The client identifier for take-profit orders, if applicable.
+
+10. `stop_loss_client_id` (str, optional): The client identifier for stop-loss orders, if applicable.
+
+11. `duration` (str, optional): A string representing the duration of the order (e.g., 'GTC' for Good
+    'Til Cancelled, 'IOC' for Immediate or Cancel). Supported order types include GTC, ATO, ATC, DAY, DYP,
+    FOK, GCP, GDP, GTD, GTT, IOC, and GTC_PO. Default is GTC.
+
+12. `client_id` (str, optional): The client identifier for the order.
+
+#### Constructor: `__init__`
+
+The class constructor initializes the `OrderSendParameters` object with the following parameters:
+
+- `alias` (str): The unique instrument name for the order.
+
+- `is_buy` (bool): A boolean value indicating whether the order is a buy order (True) or a sell order (False).
+
+- `size` (int): An integer representing the quantity of the order to be placed.
+
+#### Usage:
+
+The `OrderSendParameters` class is used to create an instance with the necessary parameters for a trading order.
+Depending on the type of order you want to place, you may set attributes such as
+`limit_price`, `stop_price`, `take_profit_offset`, `stop_loss_offset`, `stop_loss_trailing_step`,
+`take_profit_client_id`, `stop_loss_client_id`, `duration`, and `client_id`.
+
+#### Example:
 
 ```python
-# Send a limit order to buy 10 units of BTCUSDT@BNF with a limit price of 30000.
-send_order(addon, 'BTCUSDT@BNF', True, 10, 'GTC', 30000)
+import bookmap as bm
+# Creating an OrderSendParameters instance for a limit order to buy 10 units of a BTCUSDT@BNF with a limit price of 50.00
+order_params = bm.OrderSendParameters("BTCUSDT@BNF", True, 10)
+order_params.limit_price = 50.0
+order_params.duration = "GTC"
+order_params.client_id = "Client1"
+```
 
-# Send a stop-limit order to sell 5 units of BTCUSDT@BNF with a limit price of 31000 and a stop price of 30500.
-send_order(addon, 'BTCUSDT@BNF', False, 5, 'GTC', 31000, 30500)
+#### Passing the order_params object to the send_order function to place the order
 
-# Send a stop order to buy 3 units of BTCUSDT@BNF with a stop price of 29000.
-send_order(addon, 'BTCUSDT@BNF', True, 3, 'GTC', float("nan"), 29000)
+```python
+import bookmap as bm
+# Create an OrderSendParameters instance for a limit order to buy 10 units of BTCUSDT@BNF with a limit price of 30000.
+order_params_limit_buy = bm.OrderSendParameters("BTCUSDT@BNF", True, 10)
+order_params_limit_buy.limit_price = 30000
+
+# Send the limit buy order
+bm.send_order(addon, order_params_limit_buy)
+
+# Create an OrderSendParameters instance for a stop-limit order to sell 5 units of
+# BTCUSDT@BNF with a limit price of 31000 and a stop price of 30500.
+order_params_stop_limit_sell = bm.OrderSendParameters("BTCUSDT@BNF", False, 5)
+order_params_stop_limit_sell.limit_price = 31000
+order_params_stop_limit_sell.stop_price = 30500
+
+# Send the stop-limit sell order
+bm.send_order(addon, order_params_stop_limit_sell)
+
+# Create an OrderSendParameters instance for a stop order to buy 3 units of BTCUSDT@BNF with a stop price of 29000.
+order_params_stop_buy = bm.OrderSendParameters("BTCUSDT@BNF", True, 3)
+order_params_stop_buy.stop_price = 29000
+
+# Send the stop buy order
+bm.send_order(addon, order_params_stop_buy)
 ```
 
 #### cancel_order
@@ -737,13 +795,14 @@ to generate an automatic batch ID. It is recommended to create your own `batch_i
 Example:
 
 ```python
+import bookmap as bm
 # Cancel a single order with order ID '4567' for instrument 'BTCUSDT@BNF'.
-cancel_order(addon, 'BTCUSDT@BNF', '4567')
+bm.cancel_order(addon, 'BTCUSDT@BNF', '4567')
 
 # Cancel multiple orders in batch with order IDs '1234', '2345', '3456' for instrument 'ETHUSDT@BNF'.
-cancel_order(addon, 'ETHUSDT@BNF', '1234', is_batch_end=False, batch_id=123)
-cancel_order(addon, 'ETHUSDT@BNF', '2345', is_batch_end=False, batch_id=123)
-cancel_order(addon, 'ETHUSDT@BNF', '3456', is_batch_end=True, batch_id=123)
+bm.cancel_order(addon, 'ETHUSDT@BNF', '1234', is_batch_end=False, batch_id=123)
+bm.cancel_order(addon, 'ETHUSDT@BNF', '2345', is_batch_end=False, batch_id=123)
+bm.cancel_order(addon, 'ETHUSDT@BNF', '3456', is_batch_end=True, batch_id=123)
 ```
 
 #### move_order
@@ -779,14 +838,15 @@ provide the new values for both `limit_price` and `stop_price`.
 Example:
 
 ```python
+import bookmap as bm
 # Move an order with order ID '7890' for instrument 'BTCUSDT@BNF' with a new limit price of 35000.
-move_order(addon, 'BTCUSDT@BNF', '7890', 35000)
+bm.move_order(addon, 'BTCUSDT@BNF', '7890', 35000)
 
 # Move an order with order ID '1234' for instrument 'ETHUSDT@BNF' with a new limit price of 1.300 and a new stop price of 1.250.
-move_order(addon, 'ETHUSDT@BNF', '1234', 1.300, 1.250)
+bm.move_order(addon, 'ETHUSDT@BNF', '1234', 1.300, 1.250)
 
 # Move an order with order ID '4567' for instrument 'XRPUSDT@BNF' with a new stop price of 0.900. Order will no longer be limit
-move_order(addon, 'XRPUSDT@BNF', '4567', float("nan"), 0.900)
+bm.move_order(addon, 'XRPUSDT@BNF', '4567', float("nan"), 0.900)
 ```
 
 #### resize_order
@@ -814,14 +874,15 @@ By providing the new size, you can increase or decrease the quantity of the orde
 Example:
 
 ```python
+import bookmap as bm
 # Resize an order with order ID '7890' for instrument 'BTCUSDT@BNF' to a new size of 15 units.
-resize_order(addon, 'BTCUSDT@BNF', '7890', 15)
+bm.resize_order(addon, 'BTCUSDT@BNF', '7890', 15)
 
 # Resize an order with order ID '1234' for instrument 'ETHUSDT@BNF' to a new size of 8 units.
-resize_order(addon, 'ETHUSDT@BNF', '1234', 8)
+bm.resize_order(addon, 'ETHUSDT@BNF', '1234', 8)
 
 # Resize an order with order ID '4567' for instrument 'XRPUSDT@BNF' to a new size of 20 units.
-resize_order(addon, 'XRPUSDT@BNF', '4567', 20)
+bm.resize_order(addon, 'XRPUSDT@BNF', '4567', 20)
 ```
 
 ### Indicators
