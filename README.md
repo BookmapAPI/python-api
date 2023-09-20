@@ -16,8 +16,8 @@ Also see the [examples](examples) directory for some examples of Python API usag
 
 ## Technical requirements
 
-To run the addon only latest stable Bookmap version is required and Python >= 3.7 installed on the
-machine. Earlier versions of Python 3 are not supported officially, but may still work.
+To run the addon only latest stable Bookmap version is required and Python >= 3.6 installed on the
+machine.
 
 > Python 2 is not supported.
 

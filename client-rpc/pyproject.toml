@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bookmap"
+version = "0.1.0"
+description = "Python implementation of L1 API library"
+readme = "../README.md"
+requires-python = ">=3.6"
+authors = [
+    { name = "Mykyta Leonov", email = "mykytal@bookmap.com" },
+    { name = "Rok Povsik", email = "rokp@bookmap.com" },
+    { name = "Roman Pavlenko", email = "romanp@bookmap.com" },
+]
+maintainers = [
+    { name = "Roman Pavlenko", email = "romanp@bookmap.com" },
+]
+keywords = ["bookmap", "trading", "api"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://bookmap.com"
+Documentation = "https://github.com/BookmapAPI/python-api"
+Source = "https://github.com/BookmapAPI/python-api"
