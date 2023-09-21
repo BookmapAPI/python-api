@@ -538,8 +538,57 @@ def on_position_update(
     :param position_update: The dictionary representing the updated position with various key-value pairs.
     """
 ```
-With the add_on_position_update_handler method, you can easily manage and respond to any changes in your
+With the `add_on_position_update_handler` method, you can easily manage and respond to any changes in your
 positions within Bookmap.
+
+#### add_on_balance_update_handler
+```python
+# Use this method to add a handler for balance update events. When a balance update occurs,
+# your custom `on_balance_update` function will be called to process the updated balance information.
+bm.add_on_balance_update_handler(addon, on_balance_update)
+```
+The `add_on_balance_update_handler` function is used to add a handler for balance update events. 
+This function allows you to specify a custom function, `on_balance_update`, that will be called whenever 
+there is a balance update event.
+
+Example of the handler function:
+```python
+# addon - The entity received from the create_addon function.
+# event - A dictionary representing the balance
+def on_balance_update(
+    addon: Any,
+    event: Dict[str, Any]
+) -> None:
+    """
+    This function is called each time there is a balance update event.
+
+    :param addon:   The addon state object that you received when calling `create_addon`.
+    :param event:   The event dictionary representing a balance update event with the following keys:
+                    - 'balancesInCurrency': (list) a list of dictionaries, each representing a currency balance with the following keys:
+                        - 'balance': (float) floating-point balance value.
+                        - 'realizedPnl': (float) floating-point realized profit and loss.
+                        - 'unrealizedPnl': (float) floating-point unrealized profit and loss.
+                        - 'previousDayBalance': (float) floating-point balance from the previous day.
+                        - 'netLiquidityValue': (float) floating-point net liquidity value.
+                        - 'currency': (string) currency code.
+                        - 'rateToBase': (float) floating-point exchange rate to the base currency.
+    """
+```
+
+Example of dictionary that represents the information about particular currency:
+
+```
+    'balance': 0.255, 
+    'realizedPnl': nan, 
+    'unrealizedPnl': nan, 
+    'previousDayBalance': nan, 
+    'netLiquidityValue': nan, 
+    'currency': 'DOGE', 
+    'rateToBase': 0.06203
+```
+
+By adding an `on_balance_update` handler, you can customize how your addon responds to balance update events, 
+making it more flexible and tailored to your specific needs.
 
 ### Subscribe data (TODO: Move this higher)
 
@@ -649,6 +698,24 @@ which is set up using the `add_on_position_update_handler` method.
 
 By utilizing the `subscribe_to_position_updates` method, you can stay informed about changes in your positions,
 enabling you to make timely decisions and efficiently manage your trading portfolio.
+
+#### subscribe_to_balance_updates
+```python
+# Use this method to subscribe to balance update events. The `alias` parameter represents the instrument alias you receive
+# in the `handle_subscribe_instrument` callback. The `req_id` is an identifier that you can set yourself to
+# uniquely identify this subscription.
+bm.subscribe_to_balance_updates(addon, alias, req_id)
+```
+The `subscribe_to_balance_updates` function is used to subscribe to balance update events. 
+This function requires the addon, alias, and req_id parameters to subscribe to balance updates for a 
+specific instrument. Balance update events provide information about changes in your account 
+balances and are real-time events.
+
+Once subscribed to balance updates, the system will automatically trigger the `on_balance_update`
+callback, which is set up using the `add_on_balance_update_handler` method.
+
+By utilizing the `subscribe_to_balance_updates` method, you can stay informed about changes 
+in your account balances, enabling you to make timely decisions and efficiently manage your trading portfolio.
 
 ### Trading
 The callbacks below will allow you to create custom trading strategies within Python API.
