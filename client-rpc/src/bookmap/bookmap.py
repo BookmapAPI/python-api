@@ -245,7 +245,7 @@ def _get_parameters_from_msg(type_token: str, msg: str):
                                                             tokens[7] == "1", str(tokens[8]), str(tokens[9])
     elif type_token == INSTRUMENT_INFO:
         # alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier
-        return tokens[1], tokens[2], tokens[3] == "1", float(tokens[4]), float(tokens[5]), float(tokens[6])
+        return tokens[1], tokens[2], tokens[3] == "1", float(tokens[4]), float(tokens[5]), float(tokens[6]), json.loads(tokens[7])
     elif type_token == INDICATOR_RESPONSE:
         # request_id, indicator_id
         return int(tokens[1]), int(tokens[2])
@@ -355,10 +355,12 @@ def start_addon(addon: typing.Dict[str, object],
 
 
 def _get_default_add_instrument_handler(add_instrument_handler: typing.Callable[
-    [typing.Dict[str, object], str, str, bool, float, float, float], None]) -> typing.Callable[
-    [typing.Dict[str, object], str, str, bool, float, float, float], None]:
-    def _default_instrument_handler(addon, alias, fullname, is_crypto, pips, size_multiplier, instrument_multiplier):
-        add_instrument_handler(addon, alias, fullname, is_crypto, pips, size_multiplier, instrument_multiplier)
+    [typing.Dict[str, object], str, str, bool, float, float, float, typing.Dict[str, object]], None]) -> typing.Callable[
+    [typing.Dict[str, object], str, str, bool, float, float, float, typing.Dict[str, object]], None]:
+    def _default_instrument_handler(addon, alias, fullname, is_crypto, pips, size_multiplier,
+                                    instrument_multiplier, supported_features):
+        add_instrument_handler(addon, alias, fullname, is_crypto, pips, size_multiplier,
+                               instrument_multiplier, supported_features)
         _finish_initialization(addon, alias)
 
     return _default_instrument_handler
