@@ -226,7 +226,7 @@ def _handle_event_sending_it_to_server(addon, event_type, raw_msg_event):
     _push_msg(send_msg_queue, raw_msg_event)
 
 
-def _subscribe_data(addon, alias, req_id, event_type, params):
+def _request_data(addon, alias, req_id, event_type, params):
     msg = FIELD_SEPARATOR.join([REQ_DATA, alias, str(req_id), event_type, FIELD_SEPARATOR.join(params)])
     _push_msg_to_event_queue(addon, msg)
 
@@ -382,32 +382,32 @@ def _stop_addon():
 
 ## data subscriber wrappers
 def subscribe_to_trades(addon: typing.Dict[str, object], alias: str, req_id: int):
-    _subscribe_data(addon, alias, req_id, TRADE, ())
+    _request_data(addon, alias, req_id, TRADE, ())
 
 
 # TODO: does not work
 def subscribe_to_bars(addon: typing.Dict[str, object], alias: str, req_id: int, interval_in_seconds: int):
-    _subscribe_data(addon, alias, req_id, BAR, [str(interval_in_seconds)])
+    _request_data(addon, alias, req_id, BAR, [str(interval_in_seconds)])
 
 
 def subscribe_to_depth(addon: typing.Dict[str, object], alias: str, req_id: int):
-    _subscribe_data(addon, alias, req_id, DEPTH, ())
+    _request_data(addon, alias, req_id, DEPTH, ())
 
 
 def subscribe_to_mbo(addon: typing.Dict[str, object], alias: str, req_id: int):
-    _subscribe_data(addon, alias, req_id, MBO, ())
+    _request_data(addon, alias, req_id, MBO, ())
 
 
 def subscribe_to_order_info(addon: typing.Dict[str, object], alias: str, req_id: int):
-    _subscribe_data(addon, alias, req_id, ORDER_INFO, ())
+    _request_data(addon, alias, req_id, ORDER_INFO, ())
 
 
 def subscribe_to_balance_updates(addon: typing.Dict[str, object], alias: str, req_id: int):
-    _subscribe_data(addon, alias, req_id, BALANCE_UPDATE, ())
+    _request_data(addon, alias, req_id, BALANCE_UPDATE, ())
 
 
 def subscribe_to_position_updates(addon: typing.Dict[str, object], alias: str, req_id: int):
-    _subscribe_data(addon, alias, req_id, POSITION_UPDATE, ())
+    _request_data(addon, alias, req_id, POSITION_UPDATE, ())
 
 
 ####### INDICATORS
