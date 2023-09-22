@@ -2,6 +2,11 @@ package com.bookmap.api.rpc.server.data.outcome.converters;
 
 import com.bookmap.api.rpc.server.data.utils.EventConverter;
 import com.bookmap.api.rpc.server.data.outcome.InstrumentInfoEvent;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import velox.api.layer1.data.Layer1ApiProviderSupportedFeatures;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -9,12 +14,24 @@ import javax.inject.Singleton;
 @Singleton
 public class InstrumentInfoConverter implements EventConverter<InstrumentInfoEvent, String> {
 
+	private final Gson gson;
+
 	@Inject
-	InstrumentInfoConverter() {}
+	InstrumentInfoConverter() {
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		gson = gsonBuilder.create();
+	}
 
 	@Override
 	public String convert(InstrumentInfoEvent entity) {
 		StringBuilder builder = new StringBuilder();
+		JsonObject json = gson.toJsonTree(entity.supportedFeatures, Layer1ApiProviderSupportedFeatures.class).getAsJsonObject();
+
+		json.remove("tradingVia");
+		json.remove("tradingFrom");
+		json.remove("knownInstruments");
+		json.remove("lookupInfo");
+
 		builder.append(entity.type.code);
 		builder.append(FIELDS_DELIMITER);
 		builder.append(entity.alias);
@@ -28,6 +45,9 @@ public class InstrumentInfoConverter implements EventConverter<InstrumentInfoEve
 		builder.append(entity.sizeMultiplier);
 		builder.append(FIELDS_DELIMITER);
 		builder.append(entity.instrumentMultiplier);
+		builder.append(FIELDS_DELIMITER);
+		builder.append(json);
+
 		return builder.toString();
 	}
 }

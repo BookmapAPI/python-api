@@ -79,9 +79,9 @@ public class AddonVsPythonCommunicationSimulationTest {
 		Assertions.assertEquals(String.valueOf(Type.SERVER_INIT.code), serverInitExpectedMsg);
 
 		var eventLoop = testInstance.getEventLoop();
-		eventLoop.pushEvent(new InstrumentInfoEvent(0.01, 1, 100, false, "STOCK TEST INSTRUMENT", "AAPL@DXFEED"));
-		eventLoop.pushEvent(new InstrumentInfoEvent(0.00001d, 100d, 1d, true, "CRYPTO TEST INSTRUMENT", "BTC-USD@KRAKEN"));
-		eventLoop.pushEvent(new InstrumentInfoEvent(0.025d, 1d, 25d, false, "FUTURES TEST INSTRUMENT", "ESU25@RITHMIC"));
+		eventLoop.pushEvent(new InstrumentInfoEvent(0.01, 1, 100, false, "STOCK TEST INSTRUMENT", "AAPL@DXFEED", null));
+		eventLoop.pushEvent(new InstrumentInfoEvent(0.00001d, 100d, 1d, true, "CRYPTO TEST INSTRUMENT", "BTC-USD@KRAKEN", null));
+		eventLoop.pushEvent(new InstrumentInfoEvent(0.025d, 1d, 25d, false, "FUTURES TEST INSTRUMENT", "ESU25@RITHMIC", null));
 
 		eventLoop.pushEvent(new InstrumentDetachedEvent("BTC-USD@KRAKEN"));
 		eventLoop.pushEvent(new InstrumentDetachedEvent("ESU25@RITHMIC"));

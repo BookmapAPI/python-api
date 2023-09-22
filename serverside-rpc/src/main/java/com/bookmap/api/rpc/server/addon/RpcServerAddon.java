@@ -12,6 +12,8 @@ import velox.api.layer1.annotations.*;
 import velox.api.layer1.common.DirectoryResolver;
 import velox.api.layer1.common.Log;
 import velox.api.layer1.data.InstrumentInfo;
+import velox.api.layer1.data.Layer1ApiProviderSupportedFeatures;
+import velox.api.layer1.providers.helper.TargetedRequestHelper;
 import velox.api.layer1.simplified.*;
 import velox.gui.StrategyPanel;
 
@@ -114,7 +116,7 @@ public class RpcServerAddon
 				instance.run();
 			}
 			this.initialState.instrumentApi.addIntervalListeners(this);
-
+			Layer1ApiProviderSupportedFeatures supportedFeatures = TargetedRequestHelper.getSupportedFeaturesForAlias(api.getProvider(), alias);
 			// TODO: find a better place to send this
 			instance.getEventLoop().pushEvent(
 					new InstrumentInfoEvent(
@@ -123,7 +125,8 @@ public class RpcServerAddon
 							instrumentInfo.multiplier,
 							instrumentInfo.isCrypto,
 							instrumentInfo.fullName,
-							alias)
+							alias,
+							supportedFeatures)
 			);
 			try {
 				// Blocking here is done because not all functionality can be done outside of initialize method
