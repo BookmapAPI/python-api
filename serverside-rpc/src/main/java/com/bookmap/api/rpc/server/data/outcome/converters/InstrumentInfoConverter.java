@@ -4,7 +4,6 @@ import com.bookmap.api.rpc.server.data.utils.EventConverter;
 import com.bookmap.api.rpc.server.data.outcome.InstrumentInfoEvent;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import velox.api.layer1.data.Layer1ApiProviderSupportedFeatures;
 
@@ -31,6 +30,12 @@ public class InstrumentInfoConverter implements EventConverter<InstrumentInfoEve
 		json.remove("tradingFrom");
 		json.remove("knownInstruments");
 		json.remove("lookupInfo");
+		json.remove("pipsFunction");
+		json.remove("sizeMultiplierFunction");
+		json.remove("subscriptionInfoFunction");
+		json.remove("historicalDataInfo");
+		json.remove("receiveCrossTradingStatusMessage");
+		json.remove("isHistoricalAggregationDisabled");
 
 		builder.append(entity.type.code);
 		builder.append(FIELDS_DELIMITER);
