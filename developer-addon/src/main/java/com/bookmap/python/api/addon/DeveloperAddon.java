@@ -26,6 +26,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -71,6 +72,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSplitPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -402,53 +404,6 @@ public class DeveloperAddon
             updateTitleLabel();
         };
 
-        ActionListener buildAction = ev -> {
-            File selectedFile = fileSelectionListener.getSelectedFile();
-            if (selectedFile == null) {
-                JOptionPane.showMessageDialog(jFrame, "No file selected");
-                return;
-            }
-
-            if (!selectedFile.getName().endsWith(".py")) {
-                JOptionPane.showMessageDialog(jFrame, "The file name must end with .py");
-                return;
-            }
-
-            try {
-                fileSaver.save(selectedFile);
-            } catch (IOException e) {
-                Log.error("Failed to save file", e);
-                JOptionPane.showMessageDialog(jFrame, "Failed to save file");
-                return;
-            }
-
-            executorService.execute(() -> {
-                try {
-                    buildAddon(selectedFile.toPath());
-                } catch (Exception e) {
-                    Log.error("Failed to build addon.", e);
-                    SwingUtilities.invokeLater(() -> {
-                        JOptionPane.showMessageDialog(
-                            jFrame,
-                            String.format("Failed to build addon:\n%s", e.getMessage())
-                        );
-                    });
-                    return;
-                }
-
-                SwingUtilities.invokeLater(() -> {
-                    JOptionPane.showMessageDialog(
-                        jFrame,
-                        "Build success.\n\n" +
-                        "You can find your addon JAR file by opening 'File' -> 'Open build folder' here in the code editor.\n\n" +
-                        "To load your addon, open the main Bookmap window, go under 'Settings' -> 'Configure addons' and add your addon JAR file.\n",
-                        "Build",
-                        JOptionPane.INFORMATION_MESSAGE
-                    );
-                });
-            });
-        };
-
         ActionListener selectRuntimeAction = ev -> {
             var fileChooser = new JFileChooser();
             fileChooser.setFileFilter(EXECUTABLES_ONLY_FILE_FILTER);
@@ -509,6 +464,7 @@ public class DeveloperAddon
         rightComponent.add(saveButton, saveButtonConstraints);
 
         buildButton = new JButton("Build", playImageIcon);
+        BuildAction buildAction = new BuildAction(fileSelectionListener, jFrame);
         buildButton.setEnabled(false);
         buildButton.setToolTipText("Build addon");
         var buildButtonConstraints = new GridBagConstraints();
@@ -623,9 +579,8 @@ public class DeveloperAddon
         saveMenuItem = new JMenuItem("Save");
         saveMenuItem.setEnabled(false);
         saveMenuItem.addActionListener(saveAction);
-        buildMenuItem = new JMenuItem("Build");
+        buildMenuItem = new JMenuItem(buildAction);
         buildMenuItem.setEnabled(false);
-        buildMenuItem.addActionListener(buildAction);
         var openBuildFolderMenuItem = new JMenuItem("Open build folder");
         openBuildFolderMenuItem.addActionListener(e -> {
             try {
@@ -1402,6 +1357,71 @@ public class DeveloperAddon
             textArea.setLineWrap(!textArea.getLineWrap());
             pythonApiSettings.setWordWrapEnabled(textArea.getLineWrap());
             saveSettings();
+        }
+    }
+
+    /**
+     * Builds an addon
+     */
+    private class BuildAction extends AbstractAction {
+
+        SavingTextEditorFileSelectionListener fileSelectionListener;
+        JFrame jFrame;
+
+        BuildAction(SavingTextEditorFileSelectionListener fileSelectionListener, JFrame jFrame) {
+            super("Build addon");
+            this.fileSelectionListener = fileSelectionListener;
+            this.jFrame = jFrame;
+            int c = InputEvent.CTRL_DOWN_MASK;
+            putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_B, c));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            File selectedFile = fileSelectionListener.getSelectedFile();
+            if (selectedFile == null) {
+                JOptionPane.showMessageDialog(jFrame, "No file selected");
+                return;
+            }
+
+            if (!selectedFile.getName().endsWith(".py")) {
+                JOptionPane.showMessageDialog(jFrame, "The file name must end with .py");
+                return;
+            }
+
+            try {
+                fileSaver.save(selectedFile);
+            } catch (IOException ex) {
+                Log.error("Failed to save file", ex);
+                JOptionPane.showMessageDialog(jFrame, "Failed to save file");
+                return;
+            }
+
+            executorService.execute(() -> {
+                try {
+                    buildAddon(selectedFile.toPath());
+                } catch (Exception ex) {
+                    Log.error("Failed to build addon.", ex);
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(
+                                jFrame,
+                                String.format("Failed to build addon:\n%s", ex.getMessage())
+                        );
+                    });
+                    return;
+                }
+
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(
+                            jFrame,
+                            "Build success.\n\n" +
+                                    "You can find your addon JAR file by opening 'File' -> 'Open build folder' here in the code editor.\n\n" +
+                                    "To load your addon, open the main Bookmap window, go under 'Settings' -> 'Configure addons' and add your addon JAR file.\n",
+                            "Build",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                });
+            });
         }
     }
 }
