@@ -49,6 +49,8 @@ dependencies {
     implementation group: 'com.bookmap.api', name: 'api-core', version: '7.3.0.26'
     implementation group: 'com.bookmap.api', name: 'api-simplified', version: '7.3.0.26'
 
+    implementation group: 'com.fifesoft', name: 'rstaui', version: '3.3.1'
+
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.4.2'
 }
 
