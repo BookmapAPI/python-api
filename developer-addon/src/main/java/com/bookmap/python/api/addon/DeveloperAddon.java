@@ -11,7 +11,11 @@ import com.bookmap.python.api.addon.settings.EditorTheme;
 import com.bookmap.python.api.addon.settings.PythonApiSettings;
 import com.bookmap.python.api.addon.ui.ExecutablesFileFilter;
 import com.bookmap.python.api.addon.ui.JLabelLink;
+import com.bookmap.python.api.addon.ui.custom.CustomCollapsibleSectionPanel;
+import com.bookmap.python.api.addon.ui.custom.CustomFindToolBar;
+import com.bookmap.python.api.addon.ui.custom.CustomReplaceToolBar;
 import com.bookmap.python.api.addon.ui.filetree.JFileTree;
+import com.bookmap.python.api.addon.ui.listeners.EditorSearchListener;
 import com.bookmap.python.api.addon.ui.listeners.EditorStateListener;
 import com.bookmap.python.api.addon.ui.listeners.EditorTextFileTrackerListener;
 import com.bookmap.python.api.addon.ui.listeners.SavingTextEditorFileSelectionListener;
@@ -79,12 +83,16 @@ import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
+import org.fife.rsta.ui.search.FindToolBar;
+import org.fife.rsta.ui.search.ReplaceToolBar;
+import org.fife.rsta.ui.search.SearchListener;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.FoldIndicatorStyle;
 import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.fife.ui.rtextarea.SearchContext;
 import velox.api.layer1.Layer1ApiFinishable;
 import velox.api.layer1.Layer1ApiInstrumentSpecificEnabledStateProvider;
 import velox.api.layer1.Layer1ApiProvider;
@@ -153,6 +161,12 @@ public class DeveloperAddon
     private SettingsAccess settingsAccess;
     private PythonApiSettings pythonApiSettings;
     private RSyntaxTextArea textArea;
+    private FindToolBar findToolBar;
+    private ReplaceToolBar replaceToolBar;
+
+    private CustomCollapsibleSectionPanel collapsibleSectionPanel;
+
+    private SearchListener searchListener;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -312,6 +326,8 @@ public class DeveloperAddon
         textArea.setAnimateBracketMatching(pythonApiSettings.isBracketMatchingAnimationEnabled());
         textArea.setPaintTabLines(pythonApiSettings.isTabLinesEnabled());
 
+        initSearchDialogs();
+
         loadNonDefaultTheme();
 
         titleLabel = new JLabel("");
@@ -444,6 +460,21 @@ public class DeveloperAddon
                 );
             }
         };
+
+        collapsibleSectionPanel = new CustomCollapsibleSectionPanel(textArea);
+        var collapsibleSectionPanelConstrains = new GridBagConstraints();
+        collapsibleSectionPanelConstrains.anchor = GridBagConstraints.FIRST_LINE_START;
+        collapsibleSectionPanelConstrains.fill = GridBagConstraints.HORIZONTAL;
+        collapsibleSectionPanelConstrains.gridy = 1;
+        collapsibleSectionPanelConstrains.gridx = 0;
+        collapsibleSectionPanelConstrains.gridwidth = 4;
+        collapsibleSectionPanelConstrains.ipady = 0;
+        collapsibleSectionPanelConstrains.weightx = 0;
+        collapsibleSectionPanelConstrains.insets = new Insets(5, 5, 5, 5);
+        rightComponent.add(collapsibleSectionPanel, collapsibleSectionPanelConstrains);
+        collapsibleSectionPanel.add(textEditorScrollPanel);
+        collapsibleSectionPanel.addBottomComponent(findToolBar);
+        collapsibleSectionPanel.addBottomComponent(replaceToolBar);
 
         /*
          * Buttons.
@@ -614,6 +645,9 @@ public class DeveloperAddon
         editMenu.add(createMenuItem(RTextArea.getAction(RTextArea.COPY_ACTION)));
         editMenu.add(createMenuItem(RTextArea.getAction(RTextArea.PASTE_ACTION)));
         editMenu.add(createMenuItem(RTextArea.getAction(RTextArea.DELETE_ACTION)));
+        editMenu.addSeparator();
+        editMenu.add(new ShowFindToolBarAction(findToolBar));
+        editMenu.add(new ShowReplaceToolBarAction(replaceToolBar));
         editMenu.addSeparator();
         editMenu.add(createMenuItem(RTextArea.getAction(RTextArea.SELECT_ALL_ACTION)));
         menuBar.add(editMenu);
@@ -790,6 +824,22 @@ public class DeveloperAddon
         );
 
         jFrame.pack();
+    }
+
+    /**
+     * Creates our Find and Replace toolbars.
+     */
+    private void initSearchDialogs() {
+        searchListener = new EditorSearchListener(textArea);
+
+        // Create toolbars and tie their search contexts together also.
+        findToolBar = new CustomFindToolBar(searchListener);
+        replaceToolBar = new CustomReplaceToolBar(searchListener);
+
+        // This ties the properties of the two toolbars together (match case,
+        // regex, etc.).
+        SearchContext context = findToolBar.getSearchContext();
+        replaceToolBar.setSearchContext(context);
     }
 
     private JMenuItem createMenuItem(Action action) {
@@ -1404,8 +1454,8 @@ public class DeveloperAddon
                     Log.error("Failed to build addon.", ex);
                     SwingUtilities.invokeLater(() -> {
                         JOptionPane.showMessageDialog(
-                                jFrame,
-                                String.format("Failed to build addon:\n%s", ex.getMessage())
+                            jFrame,
+                            String.format("Failed to build addon:\n%s", ex.getMessage())
                         );
                     });
                     return;
@@ -1413,15 +1463,55 @@ public class DeveloperAddon
 
                 SwingUtilities.invokeLater(() -> {
                     JOptionPane.showMessageDialog(
-                            jFrame,
-                            "Build success.\n\n" +
-                                    "You can find your addon JAR file by opening 'File' -> 'Open build folder' here in the code editor.\n\n" +
-                                    "To load your addon, open the main Bookmap window, go under 'Settings' -> 'Configure addons' and add your addon JAR file.\n",
-                            "Build",
-                            JOptionPane.INFORMATION_MESSAGE
+                        jFrame,
+                        "Build success.\n\n" +
+                        "You can find your addon JAR file by opening 'File' -> 'Open build folder' here in the code editor.\n\n" +
+                        "To load your addon, open the main Bookmap window, go under 'Settings' -> 'Configure addons' and add your addon JAR file.\n",
+                        "Build",
+                        JOptionPane.INFORMATION_MESSAGE
                     );
                 });
             });
+        }
+    }
+
+    /**
+     * Shows the Find toolbar.
+     */
+    private class ShowFindToolBarAction extends AbstractAction {
+
+        private final FindToolBar findToolBar;
+
+        ShowFindToolBarAction(FindToolBar findToolBar) {
+            super("Find");
+            this.findToolBar = findToolBar;
+            int c = InputEvent.CTRL_DOWN_MASK;
+            putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_F, c));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            collapsibleSectionPanel.showBottomComponent(findToolBar);
+        }
+    }
+
+    /**
+     * Shows the Replace toolbar.
+     */
+    private class ShowReplaceToolBarAction extends AbstractAction {
+
+        private final ReplaceToolBar replaceToolBar;
+
+        ShowReplaceToolBarAction(ReplaceToolBar replaceToolBar) {
+            super("Replace");
+            this.replaceToolBar = replaceToolBar;
+            int c = InputEvent.CTRL_DOWN_MASK;
+            putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_H, c));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            collapsibleSectionPanel.showBottomComponent(replaceToolBar);
         }
     }
 }

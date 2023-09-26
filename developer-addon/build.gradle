@@ -41,6 +41,9 @@ dependencies {
     // See here which is the latest version:
     // https://github.com/bobbylight/RSyntaxTextArea/releases
     fatJarLib group: 'com.fifesoft', name: 'rsyntaxtextarea', version: '3.3.2'
+    // Find and replace toolbars in editor
+    // https://github.com/bobbylight/RSTAUI/releases
+    fatJarLib group: 'com.fifesoft', name: 'rstaui', version: '3.3.1'
     // https://mvnrepository.com/artifact/org.ow2.asm/asm
     fatJarLib group: 'org.ow2.asm', name: 'asm', version: '9.3'
     // https://mvnrepository.com/artifact/org.ow2.asm/asm-commons
@@ -48,8 +51,6 @@ dependencies {
 
     implementation group: 'com.bookmap.api', name: 'api-core', version: '7.3.0.26'
     implementation group: 'com.bookmap.api', name: 'api-simplified', version: '7.3.0.26'
-
-    implementation group: 'com.fifesoft', name: 'rstaui', version: '3.3.1'
 
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter', version: '5.4.2'
 }
