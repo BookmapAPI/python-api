@@ -31,7 +31,7 @@ configurations {
     implementation.canBeResolved = true
 }
 
-def version = "0.1.0"
+def version = "0.1.1"
 def baseName = "${LOWEST_BOOKMAP_VERSION}---${HIGHEST_BOOKMAP_VERSION}---2---python-api---${version}"
 
 dependencies {

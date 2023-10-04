@@ -1,3 +1,10 @@
+## Version 0.1.1
+
+- make ctrl+f search
+- make ctrl+b build
+- make ctrl+h replace
+- add dictionary for supported features in `handle_subscribe_instrument`
+
 ## Version 0.1.0
 
 - rename library from `pyl1api` to `bookmap`

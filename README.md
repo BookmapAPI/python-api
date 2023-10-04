@@ -79,6 +79,7 @@ def handle_subscribe_instrument(
     pips: float,
     size_multiplier: float,
     instrument_multiplier: float
+    supported_features: Dict[str, object]
 ) -> None:
     """
     This function is called each time the user enables your addon for a certain instrument.
@@ -90,8 +91,18 @@ def handle_subscribe_instrument(
     :param pips: The minimum price increment of the subscribed instrument.
     :param size_multiplier: Inverse of the minimum size increment of the subscribed instrument.
     :param instrument_multiplier: Contract size multiplier (useful for futures).
+    :param supported_features: A dictionary, that represents features that are by particular instrument.
     """
     print("Subscribing to the instrument " + alias, flush=True)
+
+Example of supported_features:
+{'trading': True, 'oco': True, 'oso': True, 'depth': True, 'mbo': False, 'trailingStopsAsIndependentOrders': True,
+ 'trailingStopsAsBracketChildren': True, 'brackets': True, 'bracketTiers': False, 'convertOrderToMkt': False,
+ 'supportedLimitDurations': ['GTC', 'FOK', 'IOC', 'GTC_PO'], 'supportedStopDurations': ['GTC', 'FOK', 'IOC'],
+ 'supportedStopOrders': ['LMT', 'MKT'], 'negativeStopLimitOffset': True, 'marketMode': False, 'isBalanceSupported': True,
+ 'tradingStartKnown': False, 'exchangeUsedForSubscription': False, 'typeUsedForSubscription': False, 'isDelayed': False,
+ 'clientSideFeatures': ['TRAILING_STOPS_AS_BRACKET_CHILDREN', 'BRACKETS', 'OCO', 'OSO', 'TRAILING_STOPS_INDEPENDENT'],
+ 'isTradingSubscriptionSupported': False}
 
 def handle_unsubscribe_instrument(
     addon: Any,
