@@ -118,7 +118,7 @@ public class DeveloperAddon
         Layer1ApiFinishable,
         Layer1ConfigSettingsInterface {
 
-    private static final String VERSION = "0.1.0";
+    private static final String VERSION = "0.1.1";
     private static final String ADDON_NAME = "Python API";
 
     private static File ROOT_DIR = DirectoryResolver.getBookmapDirectoryByName("Python").toFile();
