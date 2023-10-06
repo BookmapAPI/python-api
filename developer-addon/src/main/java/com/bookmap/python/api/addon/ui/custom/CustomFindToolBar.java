@@ -10,6 +10,7 @@ package com.bookmap.python.api.addon.ui.custom;
  */
 
 import java.awt.BorderLayout;
+import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -95,6 +96,43 @@ public class CustomFindToolBar extends FindToolBar {
      */
     public CustomFindToolBar(SearchListener listener) {
         super(listener);
+
+        // Keep focus in this component when tabbing through search controls
+        setFocusCycleRoot(true);
+
+        markAllTimer = new Timer(300, new MarkAllEventNotifier());
+        markAllTimer.setRepeats(false);
+
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
+        addSearchListener(listener);
+        this.listener = new ToolBarListener();
+
+        // The user should set a shared instance between all subclass
+        // instances, but to be safe we set individual ones.
+        setSearchContext(new SearchContext());
+
+        ComponentOrientation orientation = ComponentOrientation.
+                getOrientation(getLocale());
+
+        add(Box.createHorizontalStrut(5));
+
+        add(createFieldPanel());
+
+        Box rest = new Box(BoxLayout.LINE_AXIS);
+        add(rest, BorderLayout.LINE_END);
+
+        rest.add(Box.createHorizontalStrut(5));
+        rest.add(createButtonPanel());
+        rest.add(Box.createHorizontalStrut(15));
+
+        JLabel infoLabel = new JLabel();
+        rest.add(infoLabel);
+
+        rest.add(Box.createHorizontalGlue());
+
+        // Get ready to go.
+        applyComponentOrientation(orientation);
         // Keep focus in this component when tabbing through search controls
     }
 
