@@ -10,7 +10,7 @@ req_id = 0
 DEFAULT_LIQUIDITY_SIZE = 10
 
 
-def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier):
+def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier, supported_features):
     global req_id
 
     instrument = {

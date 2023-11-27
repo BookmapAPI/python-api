@@ -3,7 +3,7 @@ import bookmap as bm
 alias_to_order_book = {}
 
 
-def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier):
+def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier, supported_features):
     print("Instrument received " + alias, flush=True)
     # create order book for each subscribed instrument
     alias_to_order_book[alias] = bm.create_order_book()

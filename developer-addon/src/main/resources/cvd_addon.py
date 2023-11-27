@@ -13,8 +13,8 @@ req_id = 1
 
 
 # mandatory callback used to register instrument info inside the python
-def handle_instrument_info(addon, alias: str, full_name: str, is_crypto: bool, pips: float, size_granularity: float,
-                           instrument_multiplier: float):
+def handle_subscribe_instrument(addon, alias: str, full_name: str, is_crypto: bool, pips: float, size_granularity: float,
+                                instrument_multiplier: float, supported_features: dict[str, object]):
     global cvd_accumulator
     global alias_to_size_granularity
     global req_id
@@ -80,7 +80,7 @@ def handle_trades(addon, alias: str, price: float, size: int, is_otc: bool, is_b
 
 
 # callback notifying that unsubscription appeared
-def handle_detach_instrument(addon, alias):
+def handle_unsubscribe_instrument(addon, alias):
     global cvd_accumulator
     del cvd_accumulator[alias]
     print("Detached " + alias, flush=True)
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     bm.add_trades_handler(addon, handle_trades)  # register callback for trades
     # register indicator response callback
     bm.add_indicator_response_handler(addon, handle_indicator_response)
-    bm.start_addon(addon, handle_instrument_info,
-                   handle_detach_instrument)  # starting an addon
+    bm.start_addon(addon, handle_subscribe_instrument,
+                   handle_unsubscribe_instrument)  # starting an addon
     # give control over python scrip to Bookmap, so it won't be finished until it is turned off from Bookmap
     bm.wait_until_addon_is_turned_off(addon)

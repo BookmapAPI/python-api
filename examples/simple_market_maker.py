@@ -48,7 +48,7 @@ alias_to_settings = {}
 alias_to_interval_count = {}
 
 
-def handle_instrument_info(addon, alias, full_name, _is_crypto, pips, size_multiplier, _instrument_multiplier):
+def handle_instrument_info(addon, alias, full_name, _is_crypto, pips, size_multiplier, _instrument_multiplier, _supported_features):
     global req_id
 
     alias_to_instrument[alias] = {

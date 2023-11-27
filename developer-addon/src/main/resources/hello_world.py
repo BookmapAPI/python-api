@@ -1,8 +1,9 @@
 import bookmap as bm
 
 
-def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier):
+def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier, supported_features):
     print("Hello world from " + alias, flush=True)
+    print("Features: " + str(supported_features), flush=True)
 
 
 def handle_unsubscribe_instrument(addon, alias):
