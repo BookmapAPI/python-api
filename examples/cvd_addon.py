@@ -14,7 +14,7 @@ req_id = 1
 
 # mandatory callback used to register instrument info inside the python
 def handle_subscribe_instrument(addon, alias: str, full_name: str, is_crypto: bool, pips: float, size_granularity: float,
-                                instrument_multiplier: float):
+                                instrument_multiplier: float, supported_features: dict[str, object]):
     global cvd_accumulator
     global alias_to_size_granularity
     global req_id

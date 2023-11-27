@@ -10,7 +10,7 @@ req_id = 0
 DEFAULT_LIQUIDITY_SIZE = 10
 
 
-def handle_instrument_info(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier):
+def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier, supported_features):
     global req_id
 
     instrument = {
@@ -39,7 +39,7 @@ def handle_instrument_info(addon, alias, full_name, is_crypto, pips, size_multip
     print("Registered...", flush=True)
 
 
-def handle_instrument_detached(addon, alias):
+def handle_unsubscribe_instrument(addon, alias):
     del alias_to_order_book[alias]
     del alias_to_instrument[alias]
 
@@ -92,5 +92,5 @@ if __name__ == "__main__":
     bm.add_indicator_response_handler(
         addon, handle_register_indicator_response)
     bm.add_on_setting_change_handler(addon, on_settings_change_handler)
-    bm.start_addon(addon, handle_instrument_info, handle_instrument_detached)
+    bm.start_addon(addon, handle_subscribe_instrument, handle_unsubscribe_instrument)
     bm.wait_until_addon_is_turned_off(addon)

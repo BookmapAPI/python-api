@@ -3,7 +3,7 @@ import bookmap as bm
 alias_to_mbo_book = {}
 
 
-def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier):
+def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_multiplier, instrument_multiplier, supported_features):
     global alias_to_mbo_book
     alias_to_mbo_book[alias] = bm.create_mbo_book()
     bm.subscribe_to_mbo(addon, alias, 1)
