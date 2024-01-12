@@ -10,6 +10,7 @@ import javax.inject.Singleton;
 @Component(
 		modules = {
 				BalanceConverterModule.class,
+				BroadcastingConverterModule.class,
 				DepthDataConverterModule.class,
 				ErrorEventConverterModule.class,
 				IndicatorResponseConverterModule.class,
