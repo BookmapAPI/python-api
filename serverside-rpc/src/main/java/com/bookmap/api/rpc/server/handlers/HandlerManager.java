@@ -20,13 +20,15 @@ public class HandlerManager implements Handler<AbstractEvent> {
 	private final AddUiFieldHandler addUiFieldHandler;
 	private final SendOrderHandler sendOrderHandler;
 	private final UpdateOrderHandler updateOrderHandler;
+	private final SubscribeToIndicatorHandler subscribeToIndicatorHandler;
+
 
 	public HandlerManager(SendingEventToClientHandler sendingEventToClientHandler, ReqDataHandler reqDataHandler,
-						  ClientInitHandler clientInitHandler, RegisterIndicatorHandler registerIndicatorHandler,
-						  AddPointIndicatorHandler addPointIndicatorHandler,
-						  FinishedInitializationHandler finishedInitializationHandler,
-						  ClientOffHandler clientOffHandler, AddUiFieldHandler addUiFieldHandler,
-						  SendOrderHandler sendOrderHandler, UpdateOrderHandler updateOrderHandler) {
+                          ClientInitHandler clientInitHandler, RegisterIndicatorHandler registerIndicatorHandler,
+                          AddPointIndicatorHandler addPointIndicatorHandler,
+                          FinishedInitializationHandler finishedInitializationHandler,
+                          ClientOffHandler clientOffHandler, AddUiFieldHandler addUiFieldHandler,
+                          SendOrderHandler sendOrderHandler, UpdateOrderHandler updateOrderHandler, SubscribeToIndicatorHandler subscribeToIndicatorHandler) {
 		this.sendingEventToClientHandler = sendingEventToClientHandler;
 		this.reqDataHandler = reqDataHandler;
 		this.clientInitHandler = clientInitHandler;
@@ -37,7 +39,8 @@ public class HandlerManager implements Handler<AbstractEvent> {
 		this.addUiFieldHandler = addUiFieldHandler;
 		this.sendOrderHandler = sendOrderHandler;
 		this.updateOrderHandler = updateOrderHandler;
-	}
+        this.subscribeToIndicatorHandler = subscribeToIndicatorHandler;
+    }
 
 	@Override
 	public void handle(AbstractEvent event) {
@@ -53,6 +56,7 @@ public class HandlerManager implements Handler<AbstractEvent> {
 			case CANCEL_ORDER, MOVE_ORDER, MOVE_ORDER_TO_MARKET, RESIZE_ORDER -> {
 				this.updateOrderHandler.handle((UpdateOrderEvent) event);
 			}
+			case REGISTER_BROADCASTING_PROVIDER -> this.subscribeToIndicatorHandler.handle((SubscribeToIndicatorEvent) event);
 			default -> this.sendingEventToClientHandler.handle(event);
 		}
 	}
