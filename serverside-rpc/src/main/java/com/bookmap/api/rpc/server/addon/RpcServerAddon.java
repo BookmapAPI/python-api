@@ -1,5 +1,7 @@
 package com.bookmap.api.rpc.server.addon;
 
+import com.bookmap.addons.broadcasting.api.view.BroadcasterConsumer;
+import com.bookmap.addons.broadcasting.implementations.view.BroadcastFactory;
 import com.bookmap.api.rpc.server.*;
 import com.bookmap.api.rpc.server.data.outcome.InstrumentDetachedEvent;
 import com.bookmap.api.rpc.server.data.outcome.InstrumentInfoEvent;
@@ -8,8 +10,10 @@ import com.bookmap.api.rpc.server.data.outcome.ServerOffEvent;
 import com.bookmap.api.rpc.server.exceptions.FatalServerException;
 import com.bookmap.api.rpc.server.log.PythonStackTraceTracker;
 import com.bookmap.api.rpc.server.log.RpcLogger;
+import velox.api.layer1.Layer1ApiProvider;
 import velox.api.layer1.annotations.*;
 import velox.api.layer1.common.DirectoryResolver;
+import velox.api.layer1.common.ListenableHelper;
 import velox.api.layer1.common.Log;
 import velox.api.layer1.data.InstrumentInfo;
 import velox.api.layer1.data.Layer1ApiProviderSupportedFeatures;
@@ -23,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 @Layer1SimpleAttachable
@@ -47,6 +52,9 @@ public class RpcServerAddon
 	public static final int PYTHON_ERROR_WIDTH = 800;
 	private static Instance instance;
 	private static ExecutorService executor;
+	private final AtomicBoolean isWorking = new AtomicBoolean(false);
+	private BroadcasterConsumer broadcaster;
+	private Connector connector;
 
 	static {
 		try {
@@ -111,11 +119,21 @@ public class RpcServerAddon
 
 			ALIAS_TO_INITIALIZATION_TASK.put(alias, future);
 
+			Layer1ApiProvider provider = api.getProvider();
+
+			ListenableHelper.addListeners(provider, this);
+			broadcaster = BroadcastFactory.getBroadcasterConsumer(provider, this.getClass().getSimpleName(), this.getClass());
+			connector = new Connector(broadcaster);
+
 			if (instance == null) {
-				instance = new ExternalProcessInstance(SCRIPT_FILE, ALIAS_TO_STATE, ALIAS_TO_INITIALIZATION_TASK, pythonExitCode);
+				instance = new ExternalProcessInstance(SCRIPT_FILE, ALIAS_TO_STATE, ALIAS_TO_INITIALIZATION_TASK, pythonExitCode, connector);
 				instance.run();
 			}
 			this.initialState.instrumentApi.addIntervalListeners(this);
+
+			isWorking.set(true);
+			broadcaster.start();
+
 			Layer1ApiProviderSupportedFeatures supportedFeatures = TargetedRequestHelper.getSupportedFeaturesForAlias(api.getProvider(), alias);
 			// TODO: find a better place to send this
 			instance.getEventLoop().pushEvent(
@@ -164,6 +182,8 @@ public class RpcServerAddon
 				executor = null;
 			}
 			instance = null;
+			connector.finish();
+			broadcaster.finish();
 		}
 	}
 

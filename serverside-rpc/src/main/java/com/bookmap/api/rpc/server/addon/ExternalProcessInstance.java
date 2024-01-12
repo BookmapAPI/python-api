@@ -33,6 +33,7 @@ public class ExternalProcessInstance implements Instance {
 
 	private final ConcurrentMap<String, State> aliasToState;
 	private final ConcurrentMap<String, CompletableFuture<?>> aliasToInitializationTask;
+	private Connector connector;
 	private Server server;
 	private final File scriptFile;
 	private MessageReader reader;
@@ -79,6 +80,11 @@ public class ExternalProcessInstance implements Instance {
 		}, PERIODS_OF_HEALTH_CHECK_SECONDS, PERIODS_OF_HEALTH_CHECK_SECONDS, TimeUnit.SECONDS);
 	}
 
+	public ExternalProcessInstance(File scriptFile, ConcurrentMap<String, State> aliasToState, ConcurrentMap<String, CompletableFuture<?>> aliasToInitializationTask, CompletableFuture<Integer> pythonExitCode, Connector connector) {
+		this(scriptFile, aliasToState, aliasToInitializationTask, pythonExitCode);
+		this.connector = connector;
+	}
+
 	@Override
 	public void run() {
 		try {
@@ -86,7 +92,7 @@ public class ExternalProcessInstance implements Instance {
 			ProcessBuilder processBuilder = new ProcessBuilder().command(Config.getPythonRuntime(), "-X utf8", scriptFile.getAbsolutePath(), String.valueOf(port));
 			server = new LocalTcpSocketServer(port);
 			runningProcess = processBuilder.start();
-			service = Executors.newSingleThreadExecutor();
+			service = Executors.newFixedThreadPool(2);
 			LogTracker.initExecutorService();
 			LogTracker.track(Log.LogLevel.INFO, runningProcess.getInputStream());
 			LogTracker.track(Log.LogLevel.ERROR, runningProcess.getErrorStream());
@@ -122,7 +128,7 @@ public class ExternalProcessInstance implements Instance {
 					sendingEventToClientHandler, reqDataHandler, clientInitHandler,
 					new RegisterIndicatorHandler(aliasToState, eventLoop), new AddPointIndicatorHandler(aliasToState, eventLoop), new FinishedInitializationHandler(aliasToInitializationTask),
 					new ClientOffHandler(eventLoop), new AddUiFieldHandler(aliasToState, eventLoop),
-					new SendOrderHandler(aliasToState, eventLoop), new UpdateOrderHandler(aliasToState, eventLoop));
+					new SendOrderHandler(aliasToState, eventLoop), new UpdateOrderHandler(aliasToState, eventLoop), new SubscribeToIndicatorHandler(eventLoop, connector, service));
 			eventLoop.setHandlerManager(handlerManager);
 			reader = new DefaultMessageReader(server, incomeConverterManager, eventLoop);
 			eventLoop.pushEvent(new ServerInitEvent());
