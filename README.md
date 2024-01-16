@@ -1,7 +1,6 @@
-# Python API reference
+# Bookmap Python API
 
-
-## What is Python API.
+## What is the Bookmap Python API?
 
 The Python API gives you the ability to create your own custom Bookmap indicators using Python
 directly within Bookmap, without the need to use an external IDE or a code editor.
