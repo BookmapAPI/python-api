@@ -1,4 +1,4 @@
-package com.bookmap.api.rpc.server.addon.listeners;
+package com.bookmap.api.rpc.server.addon.listeners.broadcasting;
 
 import com.bookmap.addons.broadcasting.api.view.listeners.ConnectionStatusListener;
 

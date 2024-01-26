@@ -5,9 +5,9 @@ import com.bookmap.addons.broadcasting.api.view.Event;
 import com.bookmap.addons.broadcasting.api.view.GeneratorInfo;
 
 import com.bookmap.api.rpc.server.EventLoop;
-import com.bookmap.api.rpc.server.addon.listeners.ConnectionListener;
-import com.bookmap.api.rpc.server.addon.listeners.EventListener;
-import com.bookmap.api.rpc.server.addon.listeners.LiveConnectionListener;
+import com.bookmap.api.rpc.server.addon.listeners.broadcasting.ConnectionListener;
+import com.bookmap.api.rpc.server.addon.listeners.broadcasting.EventListener;
+import com.bookmap.api.rpc.server.addon.listeners.broadcasting.LiveConnectionListener;
 import com.bookmap.api.rpc.server.log.RpcLogger;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.bookmap.api.rpc.server.addon.listeners;
+package com.bookmap.api.rpc.server.addon.listeners.data;
 
 import com.bookmap.api.rpc.server.EventLoop;
 import com.bookmap.api.rpc.server.data.BarEvent;
