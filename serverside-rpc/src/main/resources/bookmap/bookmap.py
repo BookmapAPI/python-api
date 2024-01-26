@@ -55,6 +55,8 @@ MOVE_ORDER_TO_MARKET = "25"
 RESIZE_ORDER = "26"
 BALANCE_UPDATE = "27"
 POSITION_UPDATE = "28"
+BROADCASTING = "29"
+REGISTER_BROADCASTING_PROVIDER = "30"
 ERROR = "-1"
 
 counter_lock = threading.Lock()
@@ -278,6 +280,8 @@ def _get_parameters_from_msg(type_token: str, msg: str):
         return [json.loads(tokens[1])]
     elif type_token == POSITION_UPDATE:
         return [json.loads(tokens[1])]
+    elif type_token == BROADCASTING:
+        return tokens[1], json.loads(tokens[2])
     else:
         # default case when there should not be any parameter parsing, but instead the msg should be sent to a server
         return type_token, msg
@@ -331,6 +335,7 @@ def start_addon(addon: typing.Dict[str, object],
     _add_event_handler(addon, RESIZE_ORDER, _handle_event_sending_it_to_server)
     _add_event_handler(addon, INSTRUMENT_INFO, _get_default_add_instrument_handler(add_instrument_handler))
     _add_event_handler(addon, INSTRUMENT_DETACHED, detach_instrument_handler)
+    _add_event_handler(addon, REGISTER_BROADCASTING_PROVIDER, _handle_event_sending_it_to_server)
 
     if "server_in" in addon and "server_out" in addon:
         server_in = addon["server_in"]
@@ -612,6 +617,19 @@ def resize_order(addon: typing.Dict[str, object],
         _stop_addon()
 
 
+def subscribe_to_indicator(addon: typing.Dict[str, object], addon_name: str, alias: str) -> typing.NoReturn:
+    try:
+        msg = FIELD_SEPARATOR.join(
+            (REGISTER_BROADCASTING_PROVIDER,
+             addon_name,
+             alias)
+        )
+        _push_msg_to_event_queue(addon, msg)
+    except Exception:
+        traceback.print_exc()
+        _stop_addon()
+
+
 ######
 
 def wait_until_addon_is_turned_off(addon: typing.Dict[str, object]) -> None:
@@ -683,6 +701,14 @@ def add_on_balance_update_handler(addon: typing.Dict[str, typing.Any],
 def add_on_position_update_handler(addon: typing.Dict[str, typing.Any],
                                    handler: typing.Callable[[str, typing.Dict[str, typing.Any]], None]) -> None:
     _add_event_handler(addon, POSITION_UPDATE, handler)
+
+
+def add_broadcasting_handler(
+        addon: typing.Dict[str, object],
+        handler: typing.Callable[[str, object], typing.NoReturn]
+) -> None:
+    _add_event_handler(addon, BROADCASTING, handler)
+
 
 
 ################ Util objects

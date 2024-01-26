@@ -2,9 +2,9 @@ package integrational;
 
 import com.bookmap.api.rpc.server.State;
 import com.bookmap.api.rpc.server.addon.TestInstance;
-import com.bookmap.api.rpc.server.addon.listeners.RpcDepthDataListener;
-import com.bookmap.api.rpc.server.addon.listeners.RpcMboDataListener;
-import com.bookmap.api.rpc.server.addon.listeners.RpcTradeDataListener;
+import com.bookmap.api.rpc.server.addon.listeners.data.RpcDepthDataListener;
+import com.bookmap.api.rpc.server.addon.listeners.data.RpcMboDataListener;
+import com.bookmap.api.rpc.server.addon.listeners.trading.RpcTradeDataListener;
 import com.bookmap.api.rpc.server.data.outcome.InstrumentDetachedEvent;
 import com.bookmap.api.rpc.server.data.outcome.InstrumentInfoEvent;
 import com.bookmap.api.rpc.server.data.utils.Type;

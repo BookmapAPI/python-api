@@ -15,6 +15,7 @@ from .bookmap import \
     add_string_settings_parameter,\
     add_color_settings_parameter,\
     add_point,\
+    subscribe_to_indicator, \
     add_trades_handler, \
     add_mbo_handler,\
     add_bar_handler,\
@@ -27,6 +28,7 @@ from .bookmap import \
     add_on_order_updated_handler,\
     add_on_balance_update_handler,\
     add_on_position_update_handler,\
+    add_broadcasting_handler, \
     create_order_book, \
     on_depth, \
     get_bbo, \

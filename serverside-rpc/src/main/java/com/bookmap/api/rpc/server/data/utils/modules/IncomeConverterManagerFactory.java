@@ -20,7 +20,8 @@ import javax.inject.Singleton;
 				RegisterIndicatorConverterModule.class,
 				ReqDataConverterModule.class,
 				ResizeOrderConverterModule.class,
-				SendOrderConverterModule.class
+				SendOrderConverterModule.class,
+				SubscribeToIndicatorConverterModule.class
 		}
 )
 public interface IncomeConverterManagerFactory {
