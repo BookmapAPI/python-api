@@ -706,7 +706,7 @@ def add_on_position_update_handler(addon: typing.Dict[str, typing.Any],
 def add_broadcasting_handler(
         addon: typing.Dict[str, object],
         handler: typing.Callable[[str, object], typing.NoReturn]
-) -> typing.NoReturn:
+) -> None:
     _add_event_handler(addon, BROADCASTING, handler)
 
 
