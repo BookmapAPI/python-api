@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 				OrderExecutionConverterModule.class,
 				OrderUpdateConverterModule.class,
 				PositionUpdateConverterModule.class,
+				ProviderStatusConverterModule.class,
 				RespDataConverterModule.class,
 				ServerInitConverterModule.class,
 				ServerOffConverterModule.class,
