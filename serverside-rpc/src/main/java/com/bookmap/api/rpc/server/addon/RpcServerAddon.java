@@ -1,8 +1,10 @@
 package com.bookmap.api.rpc.server.addon;
 
 import com.bookmap.addons.broadcasting.api.view.BroadcasterConsumer;
+import com.bookmap.addons.broadcasting.api.view.listeners.ProviderStatusListener;
 import com.bookmap.addons.broadcasting.implementations.view.BroadcastFactory;
 import com.bookmap.api.rpc.server.*;
+import com.bookmap.api.rpc.server.addon.listeners.broadcasting.RpcProviderStatusListener;
 import com.bookmap.api.rpc.server.data.outcome.InstrumentDetachedEvent;
 import com.bookmap.api.rpc.server.data.outcome.InstrumentInfoEvent;
 import com.bookmap.api.rpc.server.data.outcome.OnIntervalEvent;
@@ -10,6 +12,7 @@ import com.bookmap.api.rpc.server.data.outcome.ServerOffEvent;
 import com.bookmap.api.rpc.server.exceptions.FatalServerException;
 import com.bookmap.api.rpc.server.log.PythonStackTraceTracker;
 import com.bookmap.api.rpc.server.log.RpcLogger;
+import com.bookmap.api.rpc.server.services.ProviderStatusService;
 import velox.api.layer1.Layer1ApiProvider;
 import velox.api.layer1.annotations.*;
 import velox.api.layer1.common.DirectoryResolver;
@@ -122,11 +125,16 @@ public class RpcServerAddon
 			Layer1ApiProvider provider = api.getProvider();
 
 			ListenableHelper.addListeners(provider, this);
-			broadcaster = BroadcastFactory.getBroadcasterConsumer(provider, this.getClass().getSimpleName(), this.getClass());
+
+			EventLoop eventLoop = new EventLoop();
+			ProviderStatusService providerStatusService = new ProviderStatusService(eventLoop);
+			ProviderStatusListener providerStatusListener = new RpcProviderStatusListener(providerStatusService);
+			broadcaster = BroadcastFactory.getBroadcasterConsumer(provider, this.getClass().getSimpleName(), this.getClass(), providerStatusListener);
+			providerStatusService.setBroadcaster(broadcaster);
 			connector = new Connector(broadcaster);
 
 			if (instance == null) {
-				instance = new ExternalProcessInstance(SCRIPT_FILE, ALIAS_TO_STATE, ALIAS_TO_INITIALIZATION_TASK, pythonExitCode, connector);
+				instance = new ExternalProcessInstance(SCRIPT_FILE, ALIAS_TO_STATE, ALIAS_TO_INITIALIZATION_TASK, pythonExitCode, connector, eventLoop);
 				instance.run();
 			}
 			this.initialState.instrumentApi.addIntervalListeners(this);
