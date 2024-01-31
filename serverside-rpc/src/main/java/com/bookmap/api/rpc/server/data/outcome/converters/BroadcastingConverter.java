@@ -15,7 +15,7 @@ public class BroadcastingConverter implements EventConverter<BroadcastingEvent, 
     public String convert(BroadcastingEvent entity) {
         return entity.type.code +
                 FIELDS_DELIMITER +
-                entity.alias +
+                entity.generatorName +
                 FIELDS_DELIMITER +
                 entity.event;
     }

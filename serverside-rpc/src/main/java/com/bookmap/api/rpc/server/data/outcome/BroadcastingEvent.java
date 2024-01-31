@@ -1,12 +1,15 @@
 package com.bookmap.api.rpc.server.data.outcome;
 
-import com.bookmap.api.rpc.server.data.utils.AbstractEventWithAlias;
+import com.bookmap.api.rpc.server.data.utils.AbstractEvent;
 import com.bookmap.api.rpc.server.data.utils.Type;
 
-public class BroadcastingEvent extends AbstractEventWithAlias {
+public class BroadcastingEvent extends AbstractEvent {
     public final String event;
-    public BroadcastingEvent(Type type, String alias, String event) {
-        super(type, alias);
+    public final String generatorName;
+
+    public BroadcastingEvent(String generatorName, String event) {
+        super(Type.BROADCASTING);
+        this.generatorName = generatorName;
         this.event = event;
     }
 }

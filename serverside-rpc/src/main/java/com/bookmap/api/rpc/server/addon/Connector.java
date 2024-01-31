@@ -55,33 +55,33 @@ public class Connector {
     }
 
 
-    public void subscribeToLiveData(String alias, EventLoop eventLoop, String providerName) {
+    public void subscribeToLiveData(String generatorName, EventLoop eventLoop, String providerName) {
         if (isConnected()) {
-            Optional<GeneratorInfo> generatorInfoOptional = getGeneratorInfo(alias, providerName);
+            Optional<GeneratorInfo> generatorInfoOptional = getGeneratorInfo(generatorName, providerName);
             generatorInfoOptional.ifPresent(generatorInfo -> {
                 LiveConnectionListener subscriptionListener =
-                        liveSubscriptionListenersByAlias.computeIfAbsent(alias, listener ->
+                        liveSubscriptionListenersByAlias.computeIfAbsent(generatorName, listener ->
                                 new LiveConnectionListener());
 
                 // Creating a listener for the events themselves.
-                EventListener eventListener = new EventListener(eventLoop, alias);
+                EventListener eventListener = new EventListener(eventLoop, generatorName);
 
                 // Trying to subscribe for live events.
                 // Broadcasting will notify us of a successful subscription through the LiveConnectionListener.
                 broadcasterConsumer.subscribeToLiveData(providerName, generatorInfo.getGeneratorName(),
                         Event.class, eventListener, subscriptionListener);
-                broadcasterConsumer.setListenersForGenerator(providerName, alias, null, null);
+                broadcasterConsumer.setListenersForGenerator(providerName, generatorName, null, null);
             });
         }
     }
 
-    private Optional<GeneratorInfo> getGeneratorInfo(String alias, String providerName) {
+    private Optional<GeneratorInfo> getGeneratorInfo(String generatorName, String providerName) {
         GeneratorInfo generatorInfo = null;
         List<GeneratorInfo> generatorsInfo = broadcasterConsumer.getGeneratorsInfo(providerName);
         for (GeneratorInfo generator : generatorsInfo) {
             // In AbsorptionIndicator, generators have the names of the aliases they work with.
             // Therefore, according to the alias, we will get a suitable generator for us.
-            if (generator.getGeneratorName().equals(alias)) {
+            if (generator.getGeneratorName().equals(generatorName)) {
                 generatorInfo = generator;
                 break;
             }

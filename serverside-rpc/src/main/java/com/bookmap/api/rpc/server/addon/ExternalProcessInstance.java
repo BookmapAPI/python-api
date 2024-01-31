@@ -80,9 +80,10 @@ public class ExternalProcessInstance implements Instance {
 		}, PERIODS_OF_HEALTH_CHECK_SECONDS, PERIODS_OF_HEALTH_CHECK_SECONDS, TimeUnit.SECONDS);
 	}
 
-	public ExternalProcessInstance(File scriptFile, ConcurrentMap<String, State> aliasToState, ConcurrentMap<String, CompletableFuture<?>> aliasToInitializationTask, CompletableFuture<Integer> pythonExitCode, Connector connector) {
+	public ExternalProcessInstance(File scriptFile, ConcurrentMap<String, State> aliasToState, ConcurrentMap<String, CompletableFuture<?>> aliasToInitializationTask, CompletableFuture<Integer> pythonExitCode, Connector connector, EventLoop eventLoop) {
 		this(scriptFile, aliasToState, aliasToInitializationTask, pythonExitCode);
 		this.connector = connector;
+		this.eventLoop = eventLoop;
 	}
 
 	@Override
@@ -118,7 +119,6 @@ public class ExternalProcessInstance implements Instance {
 			}
 			Log.info("Processed started");
 			server.start();
-			eventLoop = new EventLoop();
 			IncomeConverterManager incomeConverterManager = DaggerIncomeConverterManagerFactory.create().incomeConverterManager();
 			OutcomeConverterManager outcomeConverterManager = DaggerOutcomeConverterManagerFactory.create().outcomeConverterManager();
 			SendingEventToClientHandler sendingEventToClientHandler = new SendingEventToClientHandler(outcomeConverterManager, server);

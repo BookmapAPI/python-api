@@ -17,12 +17,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class EventListener implements LiveEventListener {
 
     private final EventLoop eventLoop;
-    private final String alias;
+    private final String generatorName;
     private final Map<Class<?>, Field[]> classToFields = new ConcurrentHashMap<>();
 
-    public EventListener(EventLoop eventLoop, String alias) {
+    public EventListener(EventLoop eventLoop, String generatorName) {
         this.eventLoop = eventLoop;
-        this.alias = alias;
+        this.generatorName = generatorName;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class EventListener implements LiveEventListener {
             catch (IllegalAccessException e) {
                 throw new RuntimeException("Error during parsing event object", e);
             }
-            eventLoop.pushEvent(new BroadcastingEvent(Type.BROADCASTING, alias, event));
+            eventLoop.pushEvent(new BroadcastingEvent(generatorName, event));
         }
     }
 
