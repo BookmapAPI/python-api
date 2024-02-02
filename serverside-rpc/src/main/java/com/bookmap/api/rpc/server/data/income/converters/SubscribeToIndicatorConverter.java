@@ -18,6 +18,6 @@ public class SubscribeToIndicatorConverter implements EventConverter<String, Abs
     @Override
     public SubscribeToIndicatorEvent convert(String entity) {
         String[] tokens = entity.split(FIELDS_DELIMITER);
-        return new SubscribeToIndicatorEvent(tokens[1], tokens[2]);
+        return new SubscribeToIndicatorEvent(tokens[1], tokens[2], Boolean.getBoolean(tokens[3]));
     }
 }
