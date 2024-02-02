@@ -620,12 +620,14 @@ def resize_order(addon: typing.Dict[str, object],
         _stop_addon()
 
 
-def subscribe_to_indicator(addon: typing.Dict[str, object], addon_name: str, alias: str) -> typing.NoReturn:
+def subscribe_to_indicator(addon: typing.Dict[str, object], addon_name: str, alias: str,
+                           does_require_filtering: bool = False) -> None:
     try:
         msg = FIELD_SEPARATOR.join(
             (REGISTER_BROADCASTING_PROVIDER,
              addon_name,
-             alias)
+             alias,
+             str(does_require_filtering))
         )
         _push_msg_to_event_queue(addon, msg)
     except Exception:
@@ -718,7 +720,6 @@ def add_broadcasting_provider_status_handler(
         handler: typing.Callable[[str, typing.Dict[str, typing.Any]], None]
 ) -> None:
     _add_event_handler(addon, PROVIDERS_STATUS, handler)
-
 
 
 ################ Util objects

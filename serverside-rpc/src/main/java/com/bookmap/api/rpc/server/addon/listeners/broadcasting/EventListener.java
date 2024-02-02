@@ -3,7 +3,6 @@ package com.bookmap.api.rpc.server.addon.listeners.broadcasting;
 import com.bookmap.addons.broadcasting.api.view.listeners.LiveEventListener;
 import com.bookmap.api.rpc.server.EventLoop;
 import com.bookmap.api.rpc.server.data.outcome.BroadcastingEvent;
-import com.bookmap.api.rpc.server.data.utils.Type;
 import com.google.gson.JsonObject;
 
 import java.lang.reflect.Field;
@@ -19,15 +18,20 @@ public class EventListener implements LiveEventListener {
     private final EventLoop eventLoop;
     private final String generatorName;
     private final Map<Class<?>, Field[]> classToFields = new ConcurrentHashMap<>();
+    private final FilterListener filterListener;
 
-    public EventListener(EventLoop eventLoop, String generatorName) {
+    public EventListener(EventLoop eventLoop, String generatorName, FilterListener filterListener) {
         this.eventLoop = eventLoop;
         this.generatorName = generatorName;
+        this.filterListener = filterListener;
     }
 
     @Override
     public void giveEvent(Object o) {
         if (o != null) {
+            if (filterListener.toFilter(o) == null) {
+                return;
+            }
             String event;
             try {
                 event = convertEventToJSON(o);

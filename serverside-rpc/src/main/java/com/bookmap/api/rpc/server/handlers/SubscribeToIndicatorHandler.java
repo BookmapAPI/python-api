@@ -24,7 +24,7 @@ public class SubscribeToIndicatorHandler implements Handler<SubscribeToIndicator
         service.execute(() -> {
             try {
                 if (isConnected.get()) {
-                    connector.subscribeToLiveData(event.alias, eventLoop, event.addonName);
+                    connector.subscribeToLiveData(event.alias, eventLoop, event.addonName, event.doesRequireFiltering);
                     RpcLogger.info("Successfully connected to " + event.addonName + " " + event.alias);
                 }
             } catch (InterruptedException | ExecutionException e) {

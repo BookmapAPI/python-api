@@ -5,9 +5,7 @@ import com.bookmap.addons.broadcasting.api.view.Event;
 import com.bookmap.addons.broadcasting.api.view.GeneratorInfo;
 
 import com.bookmap.api.rpc.server.EventLoop;
-import com.bookmap.api.rpc.server.addon.listeners.broadcasting.ConnectionListener;
-import com.bookmap.api.rpc.server.addon.listeners.broadcasting.EventListener;
-import com.bookmap.api.rpc.server.addon.listeners.broadcasting.LiveConnectionListener;
+import com.bookmap.api.rpc.server.addon.listeners.broadcasting.*;
 import com.bookmap.api.rpc.server.log.RpcLogger;
 
 import java.util.List;
@@ -55,7 +53,7 @@ public class Connector {
     }
 
 
-    public void subscribeToLiveData(String generatorName, EventLoop eventLoop, String providerName) {
+    public void subscribeToLiveData(String generatorName, EventLoop eventLoop, String providerName, boolean doesRequireFiltering) {
         if (isConnected()) {
             Optional<GeneratorInfo> generatorInfoOptional = getGeneratorInfo(generatorName, providerName);
             generatorInfoOptional.ifPresent(generatorInfo -> {
@@ -63,14 +61,20 @@ public class Connector {
                         liveSubscriptionListenersByAlias.computeIfAbsent(generatorName, listener ->
                                 new LiveConnectionListener());
 
+                FilterListener filterListener = new FilterListener();
+
                 // Creating a listener for the events themselves.
-                EventListener eventListener = new EventListener(eventLoop, generatorName);
+                EventListener eventListener = new EventListener(eventLoop, generatorName, filterListener);
 
                 // Trying to subscribe for live events.
                 // Broadcasting will notify us of a successful subscription through the LiveConnectionListener.
                 broadcasterConsumer.subscribeToLiveData(providerName, generatorInfo.getGeneratorName(),
                         Event.class, eventListener, subscriptionListener);
-                broadcasterConsumer.setListenersForGenerator(providerName, generatorName, null, null);
+                if (doesRequireFiltering) {
+                    broadcasterConsumer.setListenersForGenerator(providerName, generatorName, filterListener, new SettingsListener());
+                } else {
+                    broadcasterConsumer.setListenersForGenerator(providerName, generatorName, null, null);
+                }
             });
         }
     }
