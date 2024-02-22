@@ -68,13 +68,14 @@ public class Connector {
 
                 // Trying to subscribe for live events.
                 // Broadcasting will notify us of a successful subscription through the LiveConnectionListener.
-                broadcasterConsumer.subscribeToLiveData(providerName, generatorInfo.getGeneratorName(),
-                        Event.class, eventListener, subscriptionListener);
+
                 if (doesRequireFiltering) {
-                    broadcasterConsumer.setListenersForGenerator(providerName, generatorName, filterListener, new SettingsListener());
+                    broadcasterConsumer.setListenersForGenerator(providerName, generatorName, filterListener, new SettingsListener(eventLoop, generatorName));
                 } else {
                     broadcasterConsumer.setListenersForGenerator(providerName, generatorName, null, null);
                 }
+                broadcasterConsumer.subscribeToLiveData(providerName, generatorInfo.getGeneratorName(),
+                        Event.class, eventListener, subscriptionListener);
             });
         }
     }
