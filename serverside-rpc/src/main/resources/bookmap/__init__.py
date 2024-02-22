@@ -30,6 +30,7 @@ from .bookmap import \
     add_on_position_update_handler,\
     add_broadcasting_handler, \
     add_broadcasting_provider_status_handler, \
+    add_broadcasting_settings_handler, \
     create_order_book, \
     on_depth, \
     get_bbo, \

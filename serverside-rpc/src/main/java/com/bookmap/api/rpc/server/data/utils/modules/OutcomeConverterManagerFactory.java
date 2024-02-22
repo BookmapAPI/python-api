@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 		modules = {
 				BalanceConverterModule.class,
 				BroadcastingConverterModule.class,
+				BroadcastingSettingsConverterModule.class,
 				DepthDataConverterModule.class,
 				ErrorEventConverterModule.class,
 				IndicatorResponseConverterModule.class,

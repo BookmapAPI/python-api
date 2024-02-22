@@ -58,6 +58,7 @@ POSITION_UPDATE = "28"
 BROADCASTING = "29"
 REGISTER_BROADCASTING_PROVIDER = "30"
 PROVIDERS_STATUS = "31"
+BROADCASTING_SETTINGS = "32"
 ERROR = "-1"
 
 counter_lock = threading.Lock()
@@ -285,6 +286,8 @@ def _get_parameters_from_msg(type_token: str, msg: str):
         return tokens[1], json.loads(tokens[2])
     elif type_token == PROVIDERS_STATUS:
         return [json.loads(tokens[1])]
+    elif type_token == BROADCASTING_SETTINGS:
+        return tokens[1], json.loads(tokens[2])
     else:
         # default case when there should not be any parameter parsing, but instead the msg should be sent to a server
         return type_token, msg
@@ -720,6 +723,13 @@ def add_broadcasting_provider_status_handler(
         handler: typing.Callable[[str, typing.Dict[str, typing.Any]], None]
 ) -> None:
     _add_event_handler(addon, PROVIDERS_STATUS, handler)
+
+
+def add_broadcasting_settings_handler(
+        addon: typing.Dict[str, object],
+        handler: typing.Callable[[str, object], None]
+) -> None:
+    _add_event_handler(addon, BROADCASTING_SETTINGS, handler)
 
 
 ################ Util objects
