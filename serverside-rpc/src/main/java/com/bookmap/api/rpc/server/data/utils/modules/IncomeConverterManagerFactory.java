@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 				ReqDataConverterModule.class,
 				ResizeOrderConverterModule.class,
 				SendOrderConverterModule.class,
+				SendUserMessageConverterModule.class,
 				SubscribeToIndicatorConverterModule.class
 		}
 )
