@@ -18,13 +18,15 @@ public class State {
 	public volatile StrategyPanel colorsConfig;
 	public volatile StrategyPanel settingsConfig;
 	public final RpcSettings settings;
+	public final Class sourceClass;
 
 	public final Map<Integer, Indicator> aliasToIndicatorsAndTheirId = new ConcurrentHashMap<>();
 
-	public State(InstrumentInfo instrumentInfo, Api instrumentApi, InitialState instrumentInitialState) {
+	public State(InstrumentInfo instrumentInfo, Api instrumentApi, InitialState instrumentInitialState, Class sourceClass) {
 		this.instrumentInfo = instrumentInfo;
 		this.instrumentApi = instrumentApi;
 		this.instrumentInitialState = instrumentInitialState;
 		settings = instrumentApi.getSettings(RpcSettings.class);
-	}
+        this.sourceClass = sourceClass;
+    }
 }

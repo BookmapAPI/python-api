@@ -83,7 +83,7 @@ public class RpcServerAddon
 	public void initialize(String alias, InstrumentInfo instrumentInfo, Api api, InitialState initialState) {
 		synchronized (INIT_LOCK) {
 			this.alias = alias;
-			this.initialState = new State(instrumentInfo, api, initialState);
+			this.initialState = new State(instrumentInfo, api, initialState, this.getClass());
 			ALIAS_TO_STATE.put(alias, this.initialState);
 
 			var future = new CompletableFuture<>();
