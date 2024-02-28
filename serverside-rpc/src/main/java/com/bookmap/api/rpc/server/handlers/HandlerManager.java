@@ -21,6 +21,7 @@ public class HandlerManager implements Handler<AbstractEvent> {
 	private final SendOrderHandler sendOrderHandler;
 	private final UpdateOrderHandler updateOrderHandler;
 	private final SubscribeToIndicatorHandler subscribeToIndicatorHandler;
+	private final SendUserMessageHandler sendUserMessageHandler;
 
 
 	public HandlerManager(SendingEventToClientHandler sendingEventToClientHandler, ReqDataHandler reqDataHandler,
@@ -28,7 +29,7 @@ public class HandlerManager implements Handler<AbstractEvent> {
                           AddPointIndicatorHandler addPointIndicatorHandler,
                           FinishedInitializationHandler finishedInitializationHandler,
                           ClientOffHandler clientOffHandler, AddUiFieldHandler addUiFieldHandler,
-                          SendOrderHandler sendOrderHandler, UpdateOrderHandler updateOrderHandler, SubscribeToIndicatorHandler subscribeToIndicatorHandler) {
+                          SendOrderHandler sendOrderHandler, UpdateOrderHandler updateOrderHandler, SubscribeToIndicatorHandler subscribeToIndicatorHandler, SendUserMessageHandler sendUserMessageHandler) {
 		this.sendingEventToClientHandler = sendingEventToClientHandler;
 		this.reqDataHandler = reqDataHandler;
 		this.clientInitHandler = clientInitHandler;
@@ -40,6 +41,7 @@ public class HandlerManager implements Handler<AbstractEvent> {
 		this.sendOrderHandler = sendOrderHandler;
 		this.updateOrderHandler = updateOrderHandler;
         this.subscribeToIndicatorHandler = subscribeToIndicatorHandler;
+        this.sendUserMessageHandler = sendUserMessageHandler;
     }
 
 	@Override
@@ -57,6 +59,7 @@ public class HandlerManager implements Handler<AbstractEvent> {
 				this.updateOrderHandler.handle((UpdateOrderEvent) event);
 			}
 			case REGISTER_BROADCASTING_PROVIDER -> this.subscribeToIndicatorHandler.handle((SubscribeToIndicatorEvent) event);
+			case SEND_USER_MESSAGE -> this.sendUserMessageHandler.handle((SendUserMessageEvent) event);
 			default -> this.sendingEventToClientHandler.handle(event);
 		}
 	}
