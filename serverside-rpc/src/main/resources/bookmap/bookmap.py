@@ -59,6 +59,7 @@ BROADCASTING = "29"
 REGISTER_BROADCASTING_PROVIDER = "30"
 PROVIDERS_STATUS = "31"
 BROADCASTING_SETTINGS = "32"
+SEND_USER_MESSAGE = "33"
 ERROR = "-1"
 
 counter_lock = threading.Lock()
@@ -342,6 +343,7 @@ def start_addon(addon: typing.Dict[str, object],
     _add_event_handler(addon, INSTRUMENT_INFO, _get_default_add_instrument_handler(add_instrument_handler))
     _add_event_handler(addon, INSTRUMENT_DETACHED, detach_instrument_handler)
     _add_event_handler(addon, REGISTER_BROADCASTING_PROVIDER, _handle_event_sending_it_to_server)
+    _add_event_handler(addon, SEND_USER_MESSAGE, _handle_event_sending_it_to_server)
 
     if "server_in" in addon and "server_out" in addon:
         server_in = addon["server_in"]
@@ -631,6 +633,19 @@ def subscribe_to_indicator(addon: typing.Dict[str, object], addon_name: str, ali
              addon_name,
              alias,
              str(does_require_filtering))
+        )
+        _push_msg_to_event_queue(addon, msg)
+    except Exception:
+        traceback.print_exc()
+        _stop_addon()
+
+
+def send_user_message(addon: typing.Dict[str, object], alias: str, message: str) -> None:
+    try:
+        msg = FIELD_SEPARATOR.join(
+            (SEND_USER_MESSAGE,
+             alias,
+             message)
         )
         _push_msg_to_event_queue(addon, msg)
     except Exception:
