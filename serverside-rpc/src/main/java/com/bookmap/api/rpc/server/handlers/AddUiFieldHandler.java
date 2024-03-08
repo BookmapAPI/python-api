@@ -35,13 +35,13 @@ public class AddUiFieldHandler implements Handler<AddUiField> {
 	@Override
 	public void handle(AddUiField event) {
 		SwingUtilities.invokeLater(() -> {
-			var state = aliasToState.get(event.alias);
+			State state = aliasToState.get(event.alias);
 			initSettingsIfNotInited(event.alias, state);
-			var settings = state.settings;
+			RpcSettings settings = state.settings;
 			try {
 				// TODO: check that parameter is the same
 				if (!settings.containsParameter(event.name)) {
-					state.settings.addParameter(event.name, new RpcSettings.SettingsParameter(event.name, event.fieldType, event.defaultValue));
+					settings.addParameter(event.name, new RpcSettings.SettingsParameter(event.name, event.fieldType, event.defaultValue));
 				}
 			} catch (Exception ex) {
 				RpcLogger.warn("Failed to add UI parameter", ex);

@@ -65,4 +65,5 @@ jar {
     from {
         configurations.fatJarLib.collect { it.isDirectory() ? it : zipTree(it) }
     }
+    destinationDirectory = file("D:\\Bookmap\\Python\\build")
 }

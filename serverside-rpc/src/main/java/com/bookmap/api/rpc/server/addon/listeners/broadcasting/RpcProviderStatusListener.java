@@ -26,6 +26,7 @@ public class RpcProviderStatusListener implements ProviderStatusListener {
 
     @Override
     public void providerUpdateGenerators(String providerName, List<GeneratorInfo> generators) {
+        System.out.println("providerUpdateGenerators " + generators);
         providerStatusService.updateProvider(providerName, generators);
     }
 }

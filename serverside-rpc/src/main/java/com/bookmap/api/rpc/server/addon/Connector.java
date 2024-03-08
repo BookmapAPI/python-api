@@ -24,6 +24,9 @@ public class Connector {
         connectionListener = new ConnectionListener();
     }
 
+    public BroadcasterConsumer getBroadcasterConsumer() {
+        return broadcasterConsumer;
+    }
 
     public Future<Boolean> connect(String providerName) {
         RpcLogger.info("Connecting to " + providerName);
@@ -52,6 +55,11 @@ public class Connector {
         return connectionListener.isConnected();
     }
 
+    public boolean isConnectedToProvider(String providerName) {
+        System.out.println(broadcasterConsumer.getSubscriptionProviders());
+        return broadcasterConsumer.getSubscriptionProviders().contains(providerName);
+    }
+
 
     public void subscribeToLiveData(String generatorName, EventLoop eventLoop, String providerName, boolean doesRequireFiltering) {
         if (isConnected()) {
@@ -59,9 +67,9 @@ public class Connector {
             generatorInfoOptional.ifPresent(generatorInfo -> {
                 LiveConnectionListener subscriptionListener =
                         liveSubscriptionListenersByAlias.computeIfAbsent(generatorName, listener ->
-                                new LiveConnectionListener());
+                                new LiveConnectionListener(generatorInfo, broadcasterConsumer));
 
-                FilterListener filterListener = new FilterListener();
+                FilterListener filterListener = new FilterListener(doesRequireFiltering);
 
                 // Creating a listener for the events themselves.
                 EventListener eventListener = new EventListener(eventLoop, generatorName, filterListener);
@@ -69,11 +77,7 @@ public class Connector {
                 // Trying to subscribe for live events.
                 // Broadcasting will notify us of a successful subscription through the LiveConnectionListener.
 
-                if (doesRequireFiltering) {
-                    broadcasterConsumer.setListenersForGenerator(providerName, generatorName, filterListener, new SettingsListener(eventLoop, generatorName));
-                } else {
-                    broadcasterConsumer.setListenersForGenerator(providerName, generatorName, null, null);
-                }
+                broadcasterConsumer.setListenersForGenerator(providerName, generatorName, filterListener, new SettingsListener(eventLoop, generatorName));
                 broadcasterConsumer.subscribeToLiveData(providerName, generatorInfo.getGeneratorName(),
                         Event.class, eventListener, subscriptionListener);
             });

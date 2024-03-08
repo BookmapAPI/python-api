@@ -24,6 +24,7 @@ public class OnSettingsParameterChangedConverter implements EventConverter<OnSet
 				.append(entity.parameterType)
 				.append(FIELDS_DELIMITER)
 				.append(entity.newValue);
+		System.out.println("OnSettingsParameterChangedConverter: " + builder.toString());
 		return builder.toString();
 	}
 }
