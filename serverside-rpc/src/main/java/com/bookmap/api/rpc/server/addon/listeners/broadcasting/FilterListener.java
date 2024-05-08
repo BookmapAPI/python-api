@@ -10,6 +10,11 @@ public class FilterListener implements UpdateFilterListener {
 
     private Object filter;
     private Method toFilter;
+    private final boolean doesRequireFiltering;
+
+    public FilterListener(boolean doesRequireFiltering) {
+        this.doesRequireFiltering = doesRequireFiltering;
+    }
 
     @Override
     public void reactToFilterUpdates(Object o) {
@@ -27,7 +32,7 @@ public class FilterListener implements UpdateFilterListener {
     }
 
     public Object toFilter(Object event) {
-        if (filter != null){
+        if (filter != null && doesRequireFiltering) {
             try {
                 return toFilter.invoke(filter, event);
             } catch (InvocationTargetException | IllegalAccessException e) {
