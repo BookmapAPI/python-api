@@ -28,12 +28,7 @@ public class EventListener implements LiveEventListener {
                 return;
             }
             String event;
-            try {
-                event = JsonUtil.convertObjectToJsonString(o);
-            }
-            catch (IllegalAccessException e) {
-                throw new RuntimeException("Error during parsing event object", e);
-            }
+            event = JsonUtil.convertObjectToJsonString(o);
             eventLoop.pushEvent(new BroadcastingEvent(generatorName, event));
         }
     }
