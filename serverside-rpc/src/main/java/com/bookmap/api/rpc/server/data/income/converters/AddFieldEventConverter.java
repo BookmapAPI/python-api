@@ -38,7 +38,7 @@ public class AddFieldEventConverter implements EventConverter<String, AbstractEv
 					reloadOnChange
 			);
 		}
-		return new AddUiField(alias, fieldType, name, defaultValue,reloadOnChange);
+		return new AddUiField(alias, fieldType, name, defaultValue, reloadOnChange);
 	}
 
 	private Object convertDefaultFieldToObject(String defaultValToken, AddUiField.FieldType fieldType) {
@@ -55,6 +55,9 @@ public class AddFieldEventConverter implements EventConverter<String, AbstractEv
 			case COLOR -> {
 				var colorTokens = defaultValToken.split(",");
 				return new Color(Integer.parseInt(colorTokens[0]), Integer.parseInt(colorTokens[1]), Integer.parseInt(colorTokens[2]));
+			}
+			case LABEL -> {
+				return null;
 			}
 		}
 		throw new RuntimeException("Unknown type received");

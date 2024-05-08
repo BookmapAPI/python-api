@@ -26,6 +26,7 @@ public class AddUiFieldHandler implements Handler<AddUiField> {
 	private final Map<String, JButton> aliasToApplySettingsButton = new HashMap<>();
 
 	private final Map<String, PendingParameterChanges> parameterNameToPendingChanges = new ConcurrentHashMap<>();
+	private int row = 0;
 
 	public AddUiFieldHandler(Map<String, State> aliasToState, EventLoop eventLoop) {
 		this.aliasToState = aliasToState;
@@ -35,13 +36,17 @@ public class AddUiFieldHandler implements Handler<AddUiField> {
 	@Override
 	public void handle(AddUiField event) {
 		SwingUtilities.invokeLater(() -> {
-			var state = aliasToState.get(event.alias);
+			State state = aliasToState.get(event.alias);
 			initSettingsIfNotInited(event.alias, state);
-			var settings = state.settings;
+			RpcSettings settings = state.settings;
+			if (event.fieldType == AddUiField.FieldType.LABEL) {
+				addLabelField(state, event);
+				return;
+			}
 			try {
 				// TODO: check that parameter is the same
 				if (!settings.containsParameter(event.name)) {
-					state.settings.addParameter(event.name, new RpcSettings.SettingsParameter(event.name, event.fieldType, event.defaultValue));
+					settings.addParameter(event.name, new RpcSettings.SettingsParameter(event.name, event.fieldType, event.defaultValue));
 				}
 			} catch (Exception ex) {
 				RpcLogger.warn("Failed to add UI parameter", ex);
@@ -90,7 +95,7 @@ public class AddUiFieldHandler implements Handler<AddUiField> {
 						)
 		);
 
-		var colorLabel = new JLabel(parameterName);
+		var colorLabel = new JLabel("<html>" + parameterName + "</html>");
 		state.colorsConfig.add(colorLabel, getConstraintsForColors(0, getNextRowForComponentInColorsPanel(state)));
 		state.colorsConfig.add(colorItem, getConstraintsForColors(1, getNextRowForComponentInColorsPanel(state)));
 
@@ -98,7 +103,7 @@ public class AddUiFieldHandler implements Handler<AddUiField> {
 
 	private void addBooleanField(State state, AddUiField event) {
 		var checkBox = new JCheckBox("");
-		var label = new JLabel(event.name);
+		var label = new JLabel("<html>" + event.name + "</html>");
 		var panel = state.settingsConfig;
 		panel.add(label, getConstraints(0, getNextRowForComponentInSettingPanel(state)));
 		panel.add(checkBox, getConstraints(1, getNextRowForComponentInSettingPanel(state)));
@@ -115,9 +120,21 @@ public class AddUiFieldHandler implements Handler<AddUiField> {
 		checkBox.addChangeListener(e -> setNewSettingsValue(event.alias, state, event.name, event.fieldType, checkBox.isSelected(), false));
 	}
 
+	private void addLabelField(State state, AddUiField event) {
+		var label = new JLabel("<html>" + event.name + "</html>");
+		var panel = state.settingsConfig;
+		var constraints = new GridBagConstraints();
+        constraints.gridwidth = GridBagConstraints.REMAINDER; // This is the last component in its row
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.gridy = getNextRowForComponentInSettingPanel(state);
+        constraints.insets = new Insets(5, 5, 5, 5);
+		panel.add(label, constraints);
+		row++;
+	}
+
 	private void addStringField(State state, AddUiField event) {
 		var textField = new JTextField();
-		var label = new JLabel(event.name);
+		var label = new JLabel("<html>" + event.name + "</html>");
 		var text = (String) event.defaultValue;
 		if (state.settings.containsParameter(event.name)) {
 			text = state.settings.getParameter(event.name).getValue(String.class);
@@ -145,7 +162,7 @@ public class AddUiFieldHandler implements Handler<AddUiField> {
 		BigDecimal defaultValue = (BigDecimal) (parameter == null ? event.defaultValue : parameter.getValue(BigDecimal.class));
 		setNewSettingsValue(event.alias, state, settingParameterName, event.fieldType, defaultValue, true);
 
-		var label = new JLabel(settingParameterName);
+		var label = new JLabel("<html>" + settingParameterName + "</html>");
 		var sModel = new SpinnerNumberModel(
 				defaultValue.doubleValue(), event.minimum.doubleValue(), event.maximum.doubleValue(), event.step.doubleValue()
 		);
@@ -238,11 +255,11 @@ public class AddUiFieldHandler implements Handler<AddUiField> {
 	// TODO: this is trick by which number of lines is defined dynamically, try to find more consistent solution, Maybe move UI to external class
 	// each line has exactly two components, label and components through which configuration can be made
 	private int getNextRowForComponentInSettingPanel(State state) {
-		return (state.settingsConfig.getComponentCount() - 1) / 2;
+		return (state.settingsConfig.getComponentCount() - 1 - row) / 2 + row;
 	}
 
 	private int getNextRowForComponentInColorsPanel(State state) {
-		return state.colorsConfig.getComponentCount() / 2;
+		return (state.colorsConfig.getComponentCount() - row) / 2 + row;
 	}
 
 

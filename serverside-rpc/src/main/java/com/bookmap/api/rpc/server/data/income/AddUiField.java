@@ -37,6 +37,7 @@ public class AddUiField extends AbstractEventWithAlias {
 		NUMBER,
 		COLOR,
 		BOOLEAN,
-		STRING;
+		STRING,
+		LABEL
 	}
 }
