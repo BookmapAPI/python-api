@@ -33,7 +33,6 @@ public class SubscribeToGeneratorHandler implements Handler<SubscribeToGenerator
                             "Exception during subscribing to live data for %s," +
                                     " indicator name: %s", event.generatorName, event.addonName), e);
                 }
-                System.out.println(connector.getBroadcasterConsumer().getGeneratorsInfo("com.bookmap.addons.marketpulse.app.MarketPulse"));
             });
         } else {
             if (connector.isConnectedToProvider(event.addonName)) {
