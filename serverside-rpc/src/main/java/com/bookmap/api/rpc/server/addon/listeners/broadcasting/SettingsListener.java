@@ -19,12 +19,7 @@ public class SettingsListener implements UpdateSettingsListener {
     public void reactToSettingsUpdate(Object o) {
         if (o != null) {
             String event;
-            try {
-                event = JsonUtil.convertObjectToJsonString(o);
-            }
-            catch (IllegalAccessException e) {
-                throw new RuntimeException("Error during parsing event object", e);
-            }
+            event = JsonUtil.convertObjectToJsonString(o);
             eventLoop.pushEvent(new BroadcastingSettingsEvent(generatorName, event));
         }
     }

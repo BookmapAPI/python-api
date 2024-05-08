@@ -4,6 +4,7 @@ import com.bookmap.addons.broadcasting.api.view.BroadcasterConsumer;
 import com.bookmap.addons.broadcasting.api.view.GeneratorInfo;
 import com.bookmap.api.rpc.server.EventLoop;
 import com.bookmap.api.rpc.server.data.outcome.ProviderStatusEvent;
+import com.bookmap.api.rpc.server.utils.JsonUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class ProviderStatusService {
     }
 
     public void updateProvider(String providerName, List<GeneratorInfo> generators) {
-        providerToGenerators.put(providerName, generators.stream().map(GeneratorInfo::getGeneratorName).toList());
+        providerToGenerators.put(providerName, generators.stream().map(JsonUtil::convertObjectToJsonString).toList());
         eventLoop.pushEvent(new ProviderStatusEvent(providerToGenerators));
     }
 
