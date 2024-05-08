@@ -55,7 +55,7 @@ public class TestInstance implements Instance {
 					sendingEventToClientHandler, reqDataHandler, clientInitHandler,
 					new RegisterIndicatorHandler(aliasToState, eventLoop), new AddPointIndicatorHandler(aliasToState, eventLoop), new FinishedInitializationHandler(aliasToInitializationTask),
 					new ClientOffHandler(eventLoop), new AddUiFieldHandler(aliasToState, eventLoop),
-					new SendOrderHandler(aliasToState, eventLoop), new UpdateOrderHandler(aliasToState, eventLoop), new SubscribeToIndicatorHandler(eventLoop, null, null),
+					new SendOrderHandler(aliasToState, eventLoop), new UpdateOrderHandler(aliasToState, eventLoop), new SubscribeToGeneratorHandler(eventLoop, null, null),
 					new SendUserMessageHandler(eventLoop, aliasToState));
 			eventLoop.setHandlerManager(handlerManager);
 			eventLoop.pushEvent(new ServerInitEvent());

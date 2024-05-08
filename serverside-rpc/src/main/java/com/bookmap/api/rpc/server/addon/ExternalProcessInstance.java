@@ -128,7 +128,7 @@ public class ExternalProcessInstance implements Instance {
 					sendingEventToClientHandler, reqDataHandler, clientInitHandler,
 					new RegisterIndicatorHandler(aliasToState, eventLoop), new AddPointIndicatorHandler(aliasToState, eventLoop), new FinishedInitializationHandler(aliasToInitializationTask),
 					new ClientOffHandler(eventLoop), new AddUiFieldHandler(aliasToState, eventLoop),
-					new SendOrderHandler(aliasToState, eventLoop), new UpdateOrderHandler(aliasToState, eventLoop), new SubscribeToIndicatorHandler(eventLoop, connector, service),
+					new SendOrderHandler(aliasToState, eventLoop), new UpdateOrderHandler(aliasToState, eventLoop), new SubscribeToGeneratorHandler(eventLoop, connector, service),
 					new SendUserMessageHandler(eventLoop, aliasToState));
 			eventLoop.setHandlerManager(handlerManager);
 			reader = new DefaultMessageReader(server, incomeConverterManager, eventLoop);

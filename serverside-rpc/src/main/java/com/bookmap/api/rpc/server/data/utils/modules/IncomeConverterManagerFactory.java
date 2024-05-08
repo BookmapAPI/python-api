@@ -22,7 +22,7 @@ import javax.inject.Singleton;
 				ResizeOrderConverterModule.class,
 				SendOrderConverterModule.class,
 				SendUserMessageConverterModule.class,
-				SubscribeToIndicatorConverterModule.class
+				SubscribeToGeneratorConverterModule.class
 		}
 )
 public interface IncomeConverterManagerFactory {
