@@ -515,6 +515,19 @@ def add_color_settings_parameter(addon: typing.Dict[str, object], alias: str, pa
         _stop_addon()
 
 
+def add_label_to_settings(addon: typing.Dict[str, object], alias: str, label_value: str) -> None:
+    msg = FIELD_SEPARATOR.join(
+        (ADD_SETTING_FIELD,
+         alias,
+         "LABEL",
+         label_value,
+         "0",    # reload_on_change is not used for labels
+         "0"     # default value is not used for labels
+         )
+    )
+    _push_msg_to_event_queue(addon, msg)
+
+
 def add_point(addon: typing.Dict[str, object], alias: str, indicator_id: int, point: float) -> None:
     try:
         msg = FIELD_SEPARATOR.join(

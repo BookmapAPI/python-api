@@ -14,6 +14,7 @@ from .bookmap import \
     add_boolean_settings_parameter,\
     add_string_settings_parameter,\
     add_color_settings_parameter,\
+    add_label_to_settings,\
     add_point,\
     subscribe_to_indicator, \
     send_user_message,\
