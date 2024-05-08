@@ -129,7 +129,8 @@ public class RpcServerAddon
 			EventLoop eventLoop = new EventLoop();
 			ProviderStatusService providerStatusService = new ProviderStatusService(eventLoop);
 			ProviderStatusListener providerStatusListener = new RpcProviderStatusListener(providerStatusService);
-			broadcaster = BroadcastFactory.getBroadcasterConsumer(provider, this.getClass().getSimpleName(), this.getClass(), providerStatusListener);
+			broadcaster = BroadcastFactory.getBroadcasterConsumer(provider, this.getClass().getSimpleName(), this.getClass());
+			broadcaster.setProviderStatusListener(providerStatusListener);
 			providerStatusService.setBroadcaster(broadcaster);
 			connector = new Connector(broadcaster);
 
