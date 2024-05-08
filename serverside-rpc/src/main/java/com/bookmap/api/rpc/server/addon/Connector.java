@@ -66,7 +66,7 @@ public class Connector {
             generatorInfoOptional.ifPresent(generatorInfo -> {
                 LiveConnectionListener subscriptionListener =
                         liveSubscriptionListenersByAlias.computeIfAbsent(generatorName, listener ->
-                                new LiveConnectionListener(generatorInfo, broadcasterConsumer));
+                                new LiveConnectionListener());
 
                 FilterListener filterListener = new FilterListener(doesRequireFiltering);
 
