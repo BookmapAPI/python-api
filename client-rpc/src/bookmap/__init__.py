@@ -16,7 +16,7 @@ from .bookmap import \
     add_color_settings_parameter,\
     add_label_to_settings,\
     add_point,\
-    subscribe_to_indicator, \
+    subscribe_to_generator, \
     send_user_message,\
     add_trades_handler, \
     add_mbo_handler,\

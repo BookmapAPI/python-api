@@ -271,7 +271,7 @@ def _get_parameters_from_msg(type_token: str, msg: str):
         elif tokens[3] == "COLOR":
             new_value = tuple(int(color_part) for color_part in ",".split(tokens[4]))
         elif tokens[3] == "BOOLEAN":
-            new_value = "1" == tokens[4]
+            new_value = "true" == tokens[4]
         else:
             new_value = tokens[4]
         return tokens[1], tokens[2], tokens[3], new_value
@@ -638,13 +638,13 @@ def resize_order(addon: typing.Dict[str, object],
         _stop_addon()
 
 
-def subscribe_to_indicator(addon: typing.Dict[str, object], addon_name: str, alias: str,
+def subscribe_to_generator(addon: typing.Dict[str, object], addon_name: str, generator_name: str = None,
                            does_require_filtering: bool = False) -> None:
     try:
         msg = FIELD_SEPARATOR.join(
             (REGISTER_BROADCASTING_PROVIDER,
              addon_name,
-             alias,
+             str(generator_name),
              str(does_require_filtering))
         )
         _push_msg_to_event_queue(addon, msg)
