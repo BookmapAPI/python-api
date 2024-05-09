@@ -157,6 +157,133 @@ How to convert these levels to a real price or size? The rule are simple:
 How to know what the instrument's `pips` and `size_multiplier` values are? You receive them via the
 [handle_subscribe_instrument](#start_addon) callback when the user subscribes to an instrument.
 
+### Subscribe data
+
+Below are examples of how to subscribe to market data. Note that you should always register your
+handlers *before* subscribing to data, otherwise you might miss certain events.
+
+The common approach is to trigger any of subscribe related methods from
+[handle_subscribe_instrument](#start_addon).
+
+Note that Bookmap uses special alias to identify instruments. Hard-coding the alias of instrument
+you wish to subscribe is bad error-prone practice. Always use alias received from
+[handle_subscribe_instrument](#start_addon).
+
+
+#### subscribe_to_depth
+
+```python
+# Call this to subscribe to depth data. The `alias` is the instrument alias you receive in
+# `handle_subscribe_instrument`. The `req_id` is the request ID you can set yourself to identify
+# the subscription.
+bm.subscribe_to_depth(addon, alias, req_id)
+```
+
+Sends a request for depth data. Depth data represents a flow of order book updates. Each update
+depicts a price level and corresponding size. All depth events are always real time events, except
+when first subscribing to depth data, in which case you first receive a snapshot of the order book.
+To see how to handle depth events, check [add_depth_handler](#add_depth_handler).
+
+Once this function is triggered, the following two things occur:
+1. A message about a successful subscription is sent. It can be handled via
+   [add_response_data_handler](#add_response_data_handler). It will have the same `req_id` as the
+   request.
+2. The initial depth events (snapshot) will be sent to reconstruct order book. You will receive many
+   depth events to populate the latest state of order book.
+
+Note that all events are received with integer price and size. See
+[Prices and Sizes in Bookmap](#Prices and Sizes in Bookmap) for more details. For more info how to
+keep tracking order book state on Python side see [create_order_book](#create_order_book).
+
+Sometimes even after getting response, you might not receive depth data even though depth is updated
+on Bookmap chart. Often it means that your provider does not report depth data, but instead reports
+MBO (market by order) data. See [subscribe_to_mbo](#subscribe_to_mbo).
+
+
+#### subscribe_to_mbo
+```python
+# Call this to subscribe to MBO data. The `alias` is the instrument alias you receive in
+# `handle_subscribe_instrument`. The `req_id` is the request ID you can set yourself to identify
+# the subscription.
+bm.subscribe_to_mbo(addon, alias, req_id)
+```
+
+Sends a request for depth data represented by MBO events. Each MBO event depicts a change in order
+book. It shows a specific order change instead a whole price level change. With MBO data feed order
+book can be represented as it is, as a set of independent orders constructing a market. MBO events
+are always real time events, except when first subscribing, since you receive a snapshot of the
+order book.
+
+To handle MBO events see [add_mbo_handler](#add_mbo_handler). General rules applied to this function
+are the same as for [subscribe_to_depth](#subscribe_to_depth) i.e. the same response will be sent
+once it is subscribed, events for order book reconstruction will be sent as well.
+
+Note that depending on the provider, depth data can be sent together with MBO events, i.e. both
+depth and MBO data can be supported. However, usually only one mode is supported either depth or
+MBO.
+
+#### subscribe_to_trades
+```python
+# Call this to subscribe to trade data. The `alias` is the instrument alias you receive in
+# `handle_subscribe_instrument`. The `req_id` is the request ID you can set yourself to identify
+# the subscription.
+bm.subscribe_to_trades(addon, alias, req_id)
+```
+
+Sends a request for trade data. Each trade event represents trade that happened in the market. Each
+trade event is always a real time event. It operates in the same way as
+[subscribe_to_depth](#subscribe_to_depth) i.e. it sends a response via special callback
+once it is subscribed.
+
+#### subscribe_to_order_info
+```python
+# Use this method to subscribe to order data. The `alias` parameter represents the instrument alias you receive
+# in the `handle_subscribe_instrument` callback. The `req_id` is an identifier that you can set yourself to
+# uniquely identify this subscription.
+bm.subscribe_to_trades(addon, alias, req_id)
+```
+
+Sends a request for order data. There are two core events related to your orders: order update and order execute.
+Subscribing to order data automatically triggers the `on_order_updated_handler` and
+`on_order_executed_handler` callbacks, which are set up using the [add_on_order_updated_handler](#add_on_order_updated_handler)
+and [add_on_order_executed_handler](#add_on_order_executed_handler) methods, respectively.
+
+#### subscribe_to_position_updates
+```python
+# Use this method to subscribe to position update events. The `alias` parameter represents the instrument alias you receive
+# in the `handle_subscribe_instrument` callback. The `req_id` is an identifier that you can set yourself to
+# uniquely identify this subscription.
+bm.subscribe_to_position_updates(addon, alias, req_id)
+```
+This function sends a request to subscribe to position update events. Each position update event provides
+information about changes in your position for a specific instrument and is always a real-time event.
+Similar to other subscription methods, a response is sent through a special callback once the
+subscription is successfully established.
+
+Once subscribed to position updates, the system will automatically trigger the `on_position_update` callback,
+which is set up using the `add_on_position_update_handler` method.
+
+By utilizing the `subscribe_to_position_updates` method, you can stay informed about changes in your positions,
+enabling you to make timely decisions and efficiently manage your trading portfolio.
+
+#### subscribe_to_balance_updates
+```python
+# Use this method to subscribe to balance update events. The `alias` parameter represents the instrument alias you receive
+# in the `handle_subscribe_instrument` callback. The `req_id` is an identifier that you can set yourself to
+# uniquely identify this subscription.
+bm.subscribe_to_balance_updates(addon, alias, req_id)
+```
+The `subscribe_to_balance_updates` function is used to subscribe to balance update events. 
+This function requires the addon, alias, and req_id parameters to subscribe to balance updates for a 
+specific instrument. Balance update events provide information about changes in your account 
+balances and are real-time events.
+
+Once subscribed to balance updates, the system will automatically trigger the `on_balance_update`
+callback, which is set up using the `add_on_balance_update_handler` method.
+
+By utilizing the `subscribe_to_balance_updates` method, you can stay informed about changes 
+in your account balances, enabling you to make timely decisions and efficiently manage your trading portfolio.
+
 ### Event handlers
 
 Below are listed many more event handlers, similar to the ones above, which Bookmap calls to
@@ -600,133 +727,6 @@ Example of dictionary that represents the information about particular currency:
 By adding an `on_balance_update` handler, you can customize how your addon responds to balance update events, 
 making it more flexible and tailored to your specific needs.
 
-### Subscribe data (TODO: Move this higher)
-
-Below are examples of how to subscribe to market data. Note that you should always register your
-handlers *before* subscribing to data, otherwise you might miss certain events.
-
-The common approach is to trigger any of subscribe related methods from
-[handle_subscribe_instrument](#start_addon).
-
-Note that Bookmap uses special alias to identify instruments. Hard-coding the alias of instrument
-you wish to subscribe is bad error-prone practice. Always use alias received from
-[handle_subscribe_instrument](#start_addon).
-
-
-#### subscribe_to_depth
-
-```python
-# Call this to subscribe to depth data. The `alias` is the instrument alias you receive in
-# `handle_subscribe_instrument`. The `req_id` is the request ID you can set yourself to identify
-# the subscription.
-bm.subscribe_to_depth(addon, alias, req_id)
-```
-
-Sends a request for depth data. Depth data represents a flow of order book updates. Each update
-depicts a price level and corresponding size. All depth events are always real time events, except
-when first subscribing to depth data, in which case you first receive a snapshot of the order book.
-To see how to handle depth events, check [add_depth_handler](#add_depth_handler).
-
-Once this function is triggered, the following two things occur:
-1. A message about a successful subscription is sent. It can be handled via
-   [add_response_data_handler](#add_response_data_handler). It will have the same `req_id` as the
-   request.
-2. The initial depth events (snapshot) will be sent to reconstruct order book. You will receive many
-   depth events to populate the latest state of order book.
-
-Note that all events are received with integer price and size. See
-[Prices and Sizes in Bookmap](#Prices and Sizes in Bookmap) for more details. For more info how to
-keep tracking order book state on Python side see [create_order_book](#create_order_book).
-
-Sometimes even after getting response, you might not receive depth data even though depth is updated
-on Bookmap chart. Often it means that your provider does not report depth data, but instead reports
-MBO (market by order) data. See [subscribe_to_mbo](#subscribe_to_mbo).
-
-
-#### subscribe_to_mbo
-```python
-# Call this to subscribe to MBO data. The `alias` is the instrument alias you receive in
-# `handle_subscribe_instrument`. The `req_id` is the request ID you can set yourself to identify
-# the subscription.
-bm.subscribe_to_mbo(addon, alias, req_id)
-```
-
-Sends a request for depth data represented by MBO events. Each MBO event depicts a change in order
-book. It shows a specific order change instead a whole price level change. With MBO data feed order
-book can be represented as it is, as a set of independent orders constructing a market. MBO events
-are always real time events, except when first subscribing, since you receive a snapshot of the
-order book.
-
-To handle MBO events see [add_mbo_handler](#add_mbo_handler). General rules applied to this function
-are the same as for [subscribe_to_depth](#subscribe_to_depth) i.e. the same response will be sent
-once it is subscribed, events for order book reconstruction will be sent as well.
-
-Note that depending on the provider, depth data can be sent together with MBO events, i.e. both
-depth and MBO data can be supported. However, usually only one mode is supported either depth or
-MBO.
-
-#### subscribe_to_trades
-```python
-# Call this to subscribe to trade data. The `alias` is the instrument alias you receive in
-# `handle_subscribe_instrument`. The `req_id` is the request ID you can set yourself to identify
-# the subscription.
-bm.subscribe_to_trades(addon, alias, req_id)
-```
-
-Sends a request for trade data. Each trade event represents trade that happened in the market. Each
-trade event is always a real time event. It operates in the same way as
-[subscribe_to_depth](#subscribe_to_depth) i.e. it sends a response via special callback
-once it is subscribed.
-
-#### subscribe_to_order_info
-```python
-# Use this method to subscribe to order data. The `alias` parameter represents the instrument alias you receive
-# in the `handle_subscribe_instrument` callback. The `req_id` is an identifier that you can set yourself to
-# uniquely identify this subscription.
-bm.subscribe_to_trades(addon, alias, req_id)
-```
-
-Sends a request for order data. There are two core events related to your orders: order update and order execute.
-Subscribing to order data automatically triggers the `on_order_updated_handler` and
-`on_order_executed_handler` callbacks, which are set up using the [add_on_order_updated_handler](#add_on_order_updated_handler)
-and [add_on_order_executed_handler](#add_on_order_executed_handler) methods, respectively.
-
-#### subscribe_to_position_updates
-```python
-# Use this method to subscribe to position update events. The `alias` parameter represents the instrument alias you receive
-# in the `handle_subscribe_instrument` callback. The `req_id` is an identifier that you can set yourself to
-# uniquely identify this subscription.
-bm.subscribe_to_position_updates(addon, alias, req_id)
-```
-This function sends a request to subscribe to position update events. Each position update event provides
-information about changes in your position for a specific instrument and is always a real-time event.
-Similar to other subscription methods, a response is sent through a special callback once the
-subscription is successfully established.
-
-Once subscribed to position updates, the system will automatically trigger the `on_position_update` callback,
-which is set up using the `add_on_position_update_handler` method.
-
-By utilizing the `subscribe_to_position_updates` method, you can stay informed about changes in your positions,
-enabling you to make timely decisions and efficiently manage your trading portfolio.
-
-#### subscribe_to_balance_updates
-```python
-# Use this method to subscribe to balance update events. The `alias` parameter represents the instrument alias you receive
-# in the `handle_subscribe_instrument` callback. The `req_id` is an identifier that you can set yourself to
-# uniquely identify this subscription.
-bm.subscribe_to_balance_updates(addon, alias, req_id)
-```
-The `subscribe_to_balance_updates` function is used to subscribe to balance update events. 
-This function requires the addon, alias, and req_id parameters to subscribe to balance updates for a 
-specific instrument. Balance update events provide information about changes in your account 
-balances and are real-time events.
-
-Once subscribed to balance updates, the system will automatically trigger the `on_balance_update`
-callback, which is set up using the `add_on_balance_update_handler` method.
-
-By utilizing the `subscribe_to_balance_updates` method, you can stay informed about changes 
-in your account balances, enabling you to make timely decisions and efficiently manage your trading portfolio.
-
 ### Trading
 The callbacks below will allow you to create custom trading strategies within Python API.
 Note that it is mandatory to check `Is trading strategy` checkbox to allow addon to trade.
@@ -1008,6 +1008,155 @@ and the instrument's `pips` value is 0.01, you have to set `point` to 11,000.
 
 See also [Prices and Sizes in Bookmap](#prices-and-sizes-in-bookmap).
 
+### Broadcasting
+Methods below allow you to get events from other addons.
+
+The general flow of broadcasting is as follows:
+1. Add a broadcasting status handler using [add_broadcasting_status_handler](#add_broadcasting_status_handler). 
+    In this handler you receive all statuses of broadcasting addons.
+2. After you see that desired provider is available, you can subscribe to it using [subscribe_to_generator](#subscribe_to_generator).
+3. Then you are connected to the provider, and you can subscribe to its generators using the same [subscribe_to_generator](#subscribe_to_generator) method.
+4. When subscribed, you will receive events and settings from the generator using
+[add_broadcasting_handler](#add_broadcasting_handler) and 
+[add_broadcasting_settings_handler](#add_broadcasting_settings_handler) respectively.
+5. Implement your ideas.
+
+#### add_broadcasting_status_handler
+```python
+# Call this method to add a handler for broadcasting status events.
+
+# addon: The addon state object that you received when calling `create_addon`.
+# handler: The function that will be called when a broadcasting status event occurs.
+bm.add_broadcasting_status_handler(addon, handler)
+```
+
+This function adds a handler for broadcasting status events. The handler function will be called every time 
+when a broadcasting status changed (e.g., new provider is available, or generator become unavailable).
+
+Example of handler:
+
+```python
+# addon - entity received from create_addon function
+# status - dictionary; it represents available broadcasting providers and its generators. It has this structure:
+#               {
+#                   'provider_name1': [generator1, generator2 ...],
+#                   ...
+#               }
+# where provider_name is a string and generator is a dictionary. Each generator has different structure, 
+# but it always contains:
+#               {
+#                   'generator_name': 'generator_name',
+#               }
+# where generator_name is a string that represents a unique generator identifier. You can use this name to subscribe 
+# to the generator.
+def broadcasting_status_handler(
+    addon: Any,
+    status: dict
+) -> None:
+    """
+    This function is called when a broadcasting status event occurs.
+
+    :param addon: The addon state object that you received when calling `create_addon`.
+    :param status: The dictionary representing the available broadcasting providers and their generators.
+    """
+```
+
+#### subscribe_to_provider
+```python
+# Call this method to subscribe to a broadcasting provider.
+
+# addon: The addon state object that you received when calling `create_addon`.
+# provider_name: The name of the broadcasting provider.
+bm.subscribe_to_provider(addon, provider_name)
+```
+
+This method only subscribes to the provider. You won't receive any events until you subscribe to its generators.
+
+#### subscribe_to_generator
+```python
+# Call this method to subscribe to a broadcasting generator or provider.
+
+# addon: The addon state object that you received when calling `create_addon`.
+# provider_name: The name of the broadcasting provider.
+# generator_name: The unique name of the provider's generator.
+# does_require_filtering: Boolean value that indicates whether you want to receive only filtered events.
+bm.subscribe_to_generator(addon, provider_name, generator_name, does_require_filtering)
+```
+
+If does_require_filtering is set to True, you will receive only filtered events. Filter is the same as used in the 
+provider add-on. We recommend to set it to False and filter events on your side by using the generator settings unless
+you have a good reason to do otherwise.
+
+You still can use this method to subscribe to provider, just don't specify generator_name and does_require_filtering.
+
+This method will still work fine if you are not subscribed to the provider, you just need to specify the provider's name
+and generator's name correctly. It will automatically connect to the provider and to the provider's generator 
+respectively.
+
+#### add_broadcasting_handler
+```python
+# Call this method to add a handler for broadcasting events.
+
+# addon: The addon state object that you received when calling `create_addon`.
+# handler: The function that will be called when a broadcasting event occurs.
+bm.add_broadcasting_handler(addon, handler)
+```
+
+This function adds a handler for broadcasting events. The handler function will be called every time when new event
+gets generated by the broadcasting generator.
+
+Example of handler:
+
+```python
+# addon - entity received from create_addon function
+# generator_name - string; it defines unique name of respective generator
+# event - dictionary; it represents a broadcasting event. Each generator has different structure.
+def broadcasting_handler(
+    addon: Any,
+    generator_name: str,
+    event: dict
+) -> None:
+    """
+    This function is called when a broadcasting event occurs.
+
+    :param addon: The addon state object that you received when calling `create_addon`.
+    :param generator_name: The unique name of the generator.
+    :param event: The dictionary representing the broadcasting event.
+    """
+```
+
+#### add_broadcasting_settings_handler
+```python
+# Call this method to add a handler for broadcasting settings events.
+
+# addon: The addon state object that you received when calling `create_addon`.
+# handler: The function that will be called when a broadcasting settings event occurs.
+bm.add_broadcasting_settings_handler(addon, handler)
+```
+
+This function adds a handler for broadcasting settings events. The handler function will be called every time when there
+is a change in the generator settings.
+
+Example of handler:
+
+```python
+# addon - entity received from create_addon function
+# generator_name - string; it defines unique name of respective generator
+# settings - dictionary; it represents a broadcasting generator settings. Each generator has different structure.
+def broadcasting_settings_handler(
+    addon: Any,
+    generator_name: str,
+    settings: dict
+) -> None:
+    """
+    This function is called when a broadcasting settings event occurs.
+
+    :param addon: The addon state object that you received when calling `create_addon`.
+    :param generator_name: The unique name of the generator.
+    :param settings: The dictionary representing the broadcasting generator settings.
+    """
+```
+
 ### Addon Settings
 
 See below how to create your custom addon settings that get displayed on the addon config panel.
@@ -1083,7 +1232,32 @@ bm.add_color_settings_parameter(addon, alias, parameter_name, default_value)
 
 Adds a color selection field to the configuration panel.
 
+#### add_label_to_settings
+```python
+# Call this method to add a label to the settings panel.
+#
+# alias:            str   - The instrument alias you receive in `handle_subscribe_instrument`.
+# label:            str   - The label you want to display in the settings panel.
+bm.add_label_to_settings(addon, alias, label)
+```
+
+Adds a label to the settings panel. It is useful when you want to describe your strategy or add-on.
+
 ### Utils
+
+#### send_user_message
+
+```python
+# Call this method to send a message to the user. The message will be displayed in the Bookmap
+# message log.
+#
+# alias:            str   - The instrument alias you receive in `handle_subscribe_instrument`. 
+# message:          str   - The message you want to send to the user.
+bm.send_user_message(addon, alias, message)
+```
+
+This function sends a message to the user, which will be displayed in the Bookmap message log.
+
 #### create_order_book
 
 ```python
