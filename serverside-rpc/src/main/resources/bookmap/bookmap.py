@@ -643,7 +643,7 @@ def subscribe_to_generator(addon: typing.Dict[str, object], addon_name: str, gen
     try:
         msg = FIELD_SEPARATOR.join(
             (REGISTER_BROADCASTING_PROVIDER,
-             addon_name,
+             provider_name,
              str(generator_name),
              str(does_require_filtering))
         )
@@ -651,6 +651,10 @@ def subscribe_to_generator(addon: typing.Dict[str, object], addon_name: str, gen
     except Exception:
         traceback.print_exc()
         _stop_addon()
+
+
+def subscribe_to_provider(addon: typing.Dict[str, object], provider_name: str) -> None:
+    subscribe_to_generator(addon, provider_name, None, False)
 
 
 def send_user_message(addon: typing.Dict[str, object], alias: str, message: str) -> None:

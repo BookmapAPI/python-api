@@ -102,7 +102,7 @@ def broadcasting_status_handler(_addon, status):
                 is_subscribed_to_market_pulse = True
                 print('Connecting to market pulse' + str(status), flush=True)
                 # If not subscribed to market pulse, we need to subscribe to it
-                bm.subscribe_to_generator(addon, provider)
+                bm.subscribe_to_provider(addon, provider)
                 break
             else:
                 # If subscribed to market pulse, we want to save all available generators
