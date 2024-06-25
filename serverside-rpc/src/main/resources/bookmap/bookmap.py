@@ -638,7 +638,7 @@ def resize_order(addon: typing.Dict[str, object],
         _stop_addon()
 
 
-def subscribe_to_generator(addon: typing.Dict[str, object], addon_name: str, generator_name: str = None,
+def subscribe_to_generator(addon: typing.Dict[str, object], provider_name: str, generator_name: str = None,
                            does_require_filtering: bool = False) -> None:
     try:
         msg = FIELD_SEPARATOR.join(
