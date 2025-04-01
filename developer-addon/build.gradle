@@ -16,8 +16,8 @@ apply plugin: 'java'
 sourceCompatibility = JavaVersion.VERSION_14
 targetCompatibility = JavaVersion.VERSION_14
 
-String LOWEST_BOOKMAP_VERSION = '7.4.0.10'
-String HIGHEST_BOOKMAP_VERSION = '7.5.1.9999'
+def LOWEST_BOOKMAP_VERSION = '7.5.0.16'
+def HIGHEST_BOOKMAP_VERSION = '7.7.1.9999'
 
 repositories {
     mavenCentral()
@@ -31,7 +31,7 @@ configurations {
     implementation.canBeResolved = true
 }
 
-def version = "0.1.2"
+def version = "0.1.4"
 def baseName = "${LOWEST_BOOKMAP_VERSION}---${HIGHEST_BOOKMAP_VERSION}---2---python-api---${version}"
 
 dependencies {

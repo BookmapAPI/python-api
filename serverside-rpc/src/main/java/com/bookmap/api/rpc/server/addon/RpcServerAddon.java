@@ -143,7 +143,13 @@ public class RpcServerAddon
 			isWorking.set(true);
 			broadcaster.start();
 
-			Layer1ApiProviderSupportedFeatures supportedFeatures = TargetedRequestHelper.getSupportedFeaturesForAlias(api.getProvider(), alias);
+			Layer1ApiProviderSupportedFeatures supportedFeatures;
+			try {
+				supportedFeatures = TargetedRequestHelper.getSupportedFeaturesForAlias(provider, alias);
+			} catch (RuntimeException e) {
+				RpcLogger.error("Can't get supported features for alias " + alias, e);
+				supportedFeatures = null;
+			}
 			// TODO: find a better place to send this
 			instance.getEventLoop().pushEvent(
 					new InstrumentInfoEvent(

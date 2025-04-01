@@ -13,46 +13,50 @@ import javax.inject.Singleton;
 @Singleton
 public class InstrumentInfoConverter implements EventConverter<InstrumentInfoEvent, String> {
 
-	private final Gson gson;
+    private final Gson gson;
 
-	@Inject
-	InstrumentInfoConverter() {
-		GsonBuilder gsonBuilder = new GsonBuilder();
-		gson = gsonBuilder.create();
-	}
+    @Inject
+    InstrumentInfoConverter() {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gson = gsonBuilder.create();
+    }
 
-	@Override
-	public String convert(InstrumentInfoEvent entity) {
-		StringBuilder builder = new StringBuilder();
-		JsonObject json = gson.toJsonTree(entity.supportedFeatures, Layer1ApiProviderSupportedFeatures.class).getAsJsonObject();
+    @Override
+    public String convert(InstrumentInfoEvent entity) {
+        StringBuilder builder = new StringBuilder();
 
-		json.remove("tradingVia");
-		json.remove("tradingFrom");
-		json.remove("knownInstruments");
-		json.remove("lookupInfo");
-		json.remove("pipsFunction");
-		json.remove("sizeMultiplierFunction");
-		json.remove("subscriptionInfoFunction");
-		json.remove("historicalDataInfo");
-		json.remove("receiveCrossTradingStatusMessage");
-		json.remove("isHistoricalAggregationDisabled");
+        builder.append(entity.type.code);
+        builder.append(FIELDS_DELIMITER);
+        builder.append(entity.alias);
+        builder.append(FIELDS_DELIMITER);
+        builder.append(entity.fullName);
+        builder.append(FIELDS_DELIMITER);
+        builder.append(entity.isCrypto ? 1 : 0);
+        builder.append(FIELDS_DELIMITER);
+        builder.append(entity.pips);
+        builder.append(FIELDS_DELIMITER);
+        builder.append(entity.sizeMultiplier);
+        builder.append(FIELDS_DELIMITER);
+        builder.append(entity.instrumentMultiplier);
+        builder.append(FIELDS_DELIMITER);
 
-		builder.append(entity.type.code);
-		builder.append(FIELDS_DELIMITER);
-		builder.append(entity.alias);
-		builder.append(FIELDS_DELIMITER);
-		builder.append(entity.fullName);
-		builder.append(FIELDS_DELIMITER);
-		builder.append(entity.isCrypto ? 1 : 0);
-		builder.append(FIELDS_DELIMITER);
-		builder.append(entity.pips);
-		builder.append(FIELDS_DELIMITER);
-		builder.append(entity.sizeMultiplier);
-		builder.append(FIELDS_DELIMITER);
-		builder.append(entity.instrumentMultiplier);
-		builder.append(FIELDS_DELIMITER);
-		builder.append(json);
+        if (entity.supportedFeatures != null) {
+            JsonObject json = gson.toJsonTree(entity.supportedFeatures, Layer1ApiProviderSupportedFeatures.class).getAsJsonObject();
+            json.remove("tradingVia");
+            json.remove("tradingFrom");
+            json.remove("knownInstruments");
+            json.remove("lookupInfo");
+            json.remove("pipsFunction");
+            json.remove("sizeMultiplierFunction");
+            json.remove("subscriptionInfoFunction");
+            json.remove("historicalDataInfo");
+            json.remove("receiveCrossTradingStatusMessage");
+            json.remove("isHistoricalAggregationDisabled");
+            builder.append(json);
+        } else {
+            builder.append("{}");
+        }
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
 }
