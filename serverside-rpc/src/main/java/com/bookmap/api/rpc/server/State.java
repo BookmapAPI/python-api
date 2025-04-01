@@ -29,4 +29,8 @@ public class State {
 		settings = instrumentApi.getSettings(RpcSettings.class);
         this.sourceClass = sourceClass;
     }
+
+	public State(InstrumentInfo instrumentInfo, Api instrumentApi, InitialState instrumentInitialState) {
+		this(instrumentInfo, instrumentApi, instrumentInitialState, null);
+	}
 }

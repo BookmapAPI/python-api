@@ -22,4 +22,18 @@ public class InstrumentInfoEvent extends AbstractEventWithAlias {
 		this.fullName = fullName;
 		this.supportedFeatures = supportedFeatures;
 	}
+
+	@Override
+	public String toString() {
+		return "InstrumentInfoEvent{" +
+				"pips=" + pips +
+				", sizeMultiplier=" + sizeMultiplier +
+				", instrumentMultiplier=" + instrumentMultiplier +
+				", isCrypto=" + isCrypto +
+				", fullName='" + fullName + '\'' +
+				", supportedFeatures=" + supportedFeatures +
+				", type=" + type +
+				", alias='" + alias + '\'' +
+				'}';
+	}
 }

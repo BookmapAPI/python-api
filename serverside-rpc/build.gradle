@@ -21,7 +21,7 @@ repositories {
     }
 }
 
-def lowerBookmapVersion = '7.3.0.26'
+def lowerBookmapVersion = '7.5.0.16'
 def baseName = "serverside-rpc"
 
 configurations {
