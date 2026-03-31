@@ -1,6 +1,7 @@
-## Version 0.1.3
+## Version 0.1.5
 
 - Added Broadcasting API lib v0.57.
+- Fixed BMP-8259 - NullPointerException in HandlerManager.
 
 ## Version 0.1.1
 

@@ -11,15 +11,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class EventLoop implements Closeable {
 
-	private HandlerManager handlerManager;
+	private volatile HandlerManager handlerManager;
 	private final BlockingQueue<AbstractEvent> events = new LinkedBlockingQueue<>();
 	private final AtomicBoolean isRun = new AtomicBoolean(true);
+	private final ExecutorService eventQueueReader = Executors.newSingleThreadExecutor();
 
 	public EventLoop() {
-		ExecutorService eventQueueReader = Executors.newSingleThreadExecutor();
 		eventQueueReader.execute(() -> {
 			try {
 				while (isRun.get()) {
+					if(this.handlerManager == null) {
+						continue;
+					}
 					AbstractEvent event = events.poll(10, TimeUnit.SECONDS);
 					if (event == null) {
 						continue;
@@ -41,6 +44,7 @@ public class EventLoop implements Closeable {
 	@Override
 	public void close() throws IOException {
 		isRun.set(false);
+		eventQueueReader.shutdown();
 	}
 
 	public void setHandlerManager(HandlerManager handlerManager) {
