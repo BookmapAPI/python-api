@@ -1,3 +1,7 @@
+## Version 0.1.3
+
+- Added Broadcasting API lib v0.57.
+
 ## Version 0.1.1
 
 - make ctrl+f search
