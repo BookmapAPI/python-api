@@ -20,7 +20,7 @@ public class EventLoop implements Closeable {
 		eventQueueReader.execute(() -> {
 			try {
 				while (isRun.get()) {
-					if(this.handlerManager == null) {
+					if (this.handlerManager == null) {
 						continue;
 					}
 					AbstractEvent event = events.poll(10, TimeUnit.SECONDS);

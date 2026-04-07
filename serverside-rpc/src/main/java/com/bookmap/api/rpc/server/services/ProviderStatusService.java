@@ -36,7 +36,7 @@ public class ProviderStatusService {
 
     public void updateProvider(String providerName, GeneratorInfo generator, boolean isOnline) {
         List<String> generators = providerToGenerators.get(providerName);
-        if(isOnline){
+        if (isOnline) {
             generators.add(generator.getGeneratorName());
         } else {
             generators.remove(generator.getGeneratorName());
