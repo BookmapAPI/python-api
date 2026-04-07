@@ -34,8 +34,14 @@ public class ProviderStatusService {
         eventLoop.pushEvent(new ProviderStatusEvent(providerToGenerators));
     }
 
-    public void updateProvider(String providerName, List<GeneratorInfo> generators) {
-        providerToGenerators.put(providerName, generators.stream().map(JsonUtil::convertObjectToJsonString).toList());
+    public void updateProvider(String providerName, GeneratorInfo generator, boolean isOnline) {
+        List<String> generators = providerToGenerators.get(providerName);
+        if (isOnline) {
+            generators.add(generator.getGeneratorName());
+        } else {
+            generators.remove(generator.getGeneratorName());
+        }
+
         eventLoop.pushEvent(new ProviderStatusEvent(providerToGenerators));
     }
 

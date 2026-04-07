@@ -15,17 +15,17 @@ public class RpcProviderStatusListener implements ProviderStatusListener {
     }
 
     @Override
-    public void providerBecameAvailable(String providerName) {
+    public void providerBecameAvailable(String providerName, String providerId) {
         providerStatusService.addProvider(providerName);
     }
 
     @Override
-    public void providerBecameUnavailable(String providerName) {
+    public void providerBecameUnavailable(String providerName, String providerId) {
         providerStatusService.removeProvider(providerName);
     }
 
     @Override
-    public void providerUpdateGenerators(String providerName, List<GeneratorInfo> generators) {
-        providerStatusService.updateProvider(providerName, generators);
+    public void providerUpdateGenerator(String providerName, String providerId, GeneratorInfo generator, boolean isOnline) {
+        providerStatusService.updateProvider(providerName, generator, isOnline);
     }
 }

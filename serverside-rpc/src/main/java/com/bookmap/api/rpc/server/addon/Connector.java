@@ -78,7 +78,7 @@ public class Connector {
 
                 broadcasterConsumer.setListenersForGenerator(providerName, generatorName, filterListener, new SettingsListener(eventLoop, generatorName));
                 broadcasterConsumer.subscribeToLiveData(providerName, generatorInfo.getGeneratorName(),
-                        Event.class, eventListener, subscriptionListener);
+                        eventListener, subscriptionListener);
             });
         }
     }
