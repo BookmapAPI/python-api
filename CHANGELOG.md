@@ -1,5 +1,9 @@
 ## Version 0.1.5
 
+- Fixed BMP-8563 - The add-on and BM crash when the add-on is launched for two instruments
+
+## Version 0.1.5
+
 - Added Broadcasting API lib v0.57.
 - Fixed BMP-8259 - NullPointerException in HandlerManager.
 

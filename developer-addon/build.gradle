@@ -16,8 +16,8 @@ apply plugin: 'java'
 sourceCompatibility = JavaVersion.VERSION_14
 targetCompatibility = JavaVersion.VERSION_14
 
-def LOWEST_BOOKMAP_VERSION = '7.5.0.16'
-def HIGHEST_BOOKMAP_VERSION = '7.7.1.9999'
+def LOWEST_BOOKMAP_VERSION = '7.6.0.9'
+def HIGHEST_BOOKMAP_VERSION = '7.8.1.9999'
 
 repositories {
     mavenCentral()
@@ -31,7 +31,7 @@ configurations {
     implementation.canBeResolved = true
 }
 
-def version = "0.1.5"
+def version = "0.1.7"
 def baseName = "${LOWEST_BOOKMAP_VERSION}---${HIGHEST_BOOKMAP_VERSION}---2---python-api---${version}"
 
 dependencies {
@@ -66,3 +66,25 @@ jar {
         configurations.fatJarLib.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
+
+// ── Full project build ─────────────────────────────────────────────────────
+
+tasks.register('buildServerSideRpc', GradleBuild) {
+    dir = file('../serverside-rpc')
+    tasks = ['clean', 'jar']
+}
+
+tasks.register('syncRpcJar', Copy) {
+    dependsOn 'buildServerSideRpc'
+    from file('../serverside-rpc/build/libs/serverside-rpc.jar')
+    into file('src/main/resources')
+}
+
+tasks.register('buildAll') {
+    group = 'build'
+    description = 'Clean build of serverside-rpc + developer-addon into a ready-to-use JAR'
+    dependsOn 'syncRpcJar', 'clean', 'jar'
+}
+
+tasks.named('jar')   { mustRunAfter 'clean', 'syncRpcJar' }
+tasks.named('clean') { mustRunAfter 'syncRpcJar' }

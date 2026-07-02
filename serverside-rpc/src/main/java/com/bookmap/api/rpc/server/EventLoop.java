@@ -14,20 +14,26 @@ public class EventLoop implements Closeable {
 	private volatile HandlerManager handlerManager;
 	private final BlockingQueue<AbstractEvent> events = new LinkedBlockingQueue<>();
 	private final AtomicBoolean isRun = new AtomicBoolean(true);
-	private final ExecutorService eventQueueReader = Executors.newSingleThreadExecutor();
+	private final ExecutorService eventQueueReader = Executors.newSingleThreadExecutor(
+			r -> new Thread(r, "python-api-event-loop"));
 
 	public EventLoop() {
 		eventQueueReader.execute(() -> {
 			try {
 				while (isRun.get()) {
-					if (this.handlerManager == null) {
+					HandlerManager manager = this.handlerManager;
+					if (manager == null) {
 						continue;
 					}
 					AbstractEvent event = events.poll(10, TimeUnit.SECONDS);
 					if (event == null) {
 						continue;
 					}
-					this.handlerManager.handle(event);
+					try {
+						manager.handle(event);
+					} catch (Exception ex) {
+						RpcLogger.warn("Failed to handle event of type [" + event.type + "]", ex);
+					}
 				}
 				RpcLogger.info("Event handler thread stopped...");
 			} catch (InterruptedException ex) {
