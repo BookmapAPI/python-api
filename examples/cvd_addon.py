@@ -82,7 +82,13 @@ def handle_trades(addon, alias: str, price: float, size: int, is_otc: bool, is_b
 # callback notifying that unsubscription appeared
 def handle_unsubscribe_instrument(addon, alias):
     global cvd_accumulator
-    del cvd_accumulator[alias]
+    global alias_to_cvd_indicator_id
+    global alias_to_size_granularity
+    # pop(..., None) instead of del: a detach for an alias we never finished tracking
+    # (or a duplicate detach) should not crash the whole addon for every other instrument.
+    cvd_accumulator.pop(alias, None)
+    alias_to_cvd_indicator_id.pop(alias, None)
+    alias_to_size_granularity.pop(alias, None)
     print("Detached " + alias, flush=True)
 
 

@@ -13,7 +13,7 @@ def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_m
 def handle_unsubscribe_instrument(addon, alias):
     global alias_to_mbo_book
     print("Goodbye world from " + alias, flush=True)
-    del alias_to_mbo_book[alias]
+    alias_to_mbo_book.pop(alias, None)
 
 
 def handle_mbo_event(addon, alias, event_type, order_id, price, size):

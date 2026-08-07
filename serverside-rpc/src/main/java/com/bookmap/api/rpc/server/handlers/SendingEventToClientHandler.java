@@ -37,8 +37,13 @@ public class SendingEventToClientHandler implements Handler<AbstractEvent> {
 			// TODO: This is temporary solution. Ideally we should implement showing our own popup instead of
 			//  crashing Bookmap or add error handler in Python
 			if (event instanceof ErrorEvent) {
+				ErrorEvent errorEvent = (ErrorEvent) event;
+				if (!errorEvent.fatal) {
+					RpcLogger.warn("Received non-fatal error event, ignoring: " + errorEvent);
+					return;
+				}
 				RpcLogger.error("Received error event: " + event);
-				throw new ErrorEventException(((ErrorEvent) event).errorString);
+				throw new ErrorEventException(errorEvent.errorString);
 			}
 			String eventStr = outcomeConverterManager.convert(event);
 			try {

@@ -14,6 +14,7 @@ public class EventLoop implements Closeable {
 	private volatile HandlerManager handlerManager;
 	private final BlockingQueue<AbstractEvent> events = new LinkedBlockingQueue<>();
 	private final AtomicBoolean isRun = new AtomicBoolean(true);
+	private final CountDownLatch handlerManagerReady = new CountDownLatch(1);
 	private final ExecutorService eventQueueReader = Executors.newSingleThreadExecutor(
 			r -> new Thread(r, "python-api-event-loop"));
 
@@ -21,10 +22,10 @@ public class EventLoop implements Closeable {
 		eventQueueReader.execute(() -> {
 			try {
 				while (isRun.get()) {
-					HandlerManager manager = this.handlerManager;
-					if (manager == null) {
+					if (!handlerManagerReady.await(10, TimeUnit.SECONDS)) {
 						continue;
 					}
+					HandlerManager manager = this.handlerManager;
 					AbstractEvent event = events.poll(10, TimeUnit.SECONDS);
 					if (event == null) {
 						continue;
@@ -55,5 +56,6 @@ public class EventLoop implements Closeable {
 
 	public void setHandlerManager(HandlerManager handlerManager) {
 		this.handlerManager = handlerManager;
+		handlerManagerReady.countDown();
 	}
 }

@@ -26,7 +26,7 @@ public class RegisterIndicatorHandler implements Handler<RegisterIndicatorEvent>
 	public void handle(RegisterIndicatorEvent event) {
 		State state = aliasToState.getOrDefault(event.alias, null);
 		if (state == null) {
-			eventLoop.pushEvent(new ErrorEvent(event.alias, 1, "Instrument is not active", event.requestId));
+			eventLoop.pushEvent(new ErrorEvent(event.alias, 1, "Instrument is not active", event.requestId, false));
 			return;
 		}
 
@@ -53,7 +53,8 @@ public class RegisterIndicatorHandler implements Handler<RegisterIndicatorEvent>
 		indicator.setLineStyle(event.lineStyle);
 		aliasToState.compute(event.alias, (k, v) -> {
 			if (v == null) {
-				eventLoop.pushEvent(new ErrorEvent(event.alias, 1, "Unknown instrument", event.requestId));
+				// Same detach race as the check above (state removed between the two lookups) - non-fatal.
+				eventLoop.pushEvent(new ErrorEvent(event.alias, 1, "Unknown instrument", event.requestId, false));
 				return null;
 			}
 			int id = INDICATOR_ID_REGISTER.getAndIncrement();

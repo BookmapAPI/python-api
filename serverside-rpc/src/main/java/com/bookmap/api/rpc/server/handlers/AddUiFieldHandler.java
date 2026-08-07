@@ -37,6 +37,10 @@ public class AddUiFieldHandler implements Handler<AddUiField> {
 	public void handle(AddUiField event) {
 		SwingUtilities.invokeLater(() -> {
 			State state = aliasToState.get(event.alias);
+			if (state == null) {
+				RpcLogger.warn("Ignoring AddUiField event for alias " + event.alias + ", instrument is already detached");
+				return;
+			}
 			initSettingsIfNotInited(event.alias, state);
 			RpcSettings settings = state.settings;
 			if (event.fieldType == AddUiField.FieldType.LABEL) {

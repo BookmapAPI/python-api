@@ -40,8 +40,13 @@ def handle_subscribe_instrument(addon, alias, full_name, is_crypto, pips, size_m
 
 
 def handle_unsubscribe_instrument(addon, alias):
-    del alias_to_order_book[alias]
-    del alias_to_instrument[alias]
+    # Use pop(..., None) instead of del: a detach for an alias we never finished tracking
+    # (or a duplicate detach) should not crash the whole addon for every other instrument.
+    alias_to_order_book.pop(alias, None)
+    alias_to_instrument.pop(alias, None)
+    alias_to_bid_liquidity_indicator.pop(alias, None)
+    alias_to_ask_liquidity_indicator.pop(alias, None)
+    liquidity_sizes.pop(alias, None)
 
 
 def handle_depth_info(addon, alias, is_bid, price, size):

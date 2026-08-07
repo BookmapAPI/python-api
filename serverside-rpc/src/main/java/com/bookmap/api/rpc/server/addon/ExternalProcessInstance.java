@@ -21,6 +21,7 @@ import com.bookmap.api.rpc.server.log.RpcLogger;
 import velox.api.layer1.common.Log;
 
 import javax.swing.*;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.*;
@@ -148,6 +149,12 @@ public class ExternalProcessInstance implements Instance {
 				if (runningProcess != null) {
 					RpcLogger.info("Process is active, stopping...");
 					runningProcess.destroyForcibly();
+					// Thread.interrupt() does not unblock a thread stuck in a blocking read on a process
+					// pipe, so LogTracker's readers can outlive this method and keep running after the
+					// addon's classloader is torn down, crashing with a confusing ClassNotFoundException.
+					// Closing the streams here forces those reads to fail immediately.
+					closeQuietly(runningProcess.getInputStream());
+					closeQuietly(runningProcess.getErrorStream());
 				}
 				RpcLogger.info("Process stopped");
 				if (reader != null) {
@@ -178,6 +185,14 @@ public class ExternalProcessInstance implements Instance {
 			} finally {
 				isRun = false;
 			}
+		}
+	}
+
+	private static void closeQuietly(Closeable closeable) {
+		try {
+			closeable.close();
+		} catch (IOException e) {
+			RpcLogger.warn("Failed to close process stream", e);
 		}
 	}
 

@@ -91,8 +91,8 @@ def handle_instrument_info(addon, alias, full_name, _is_crypto, pips, size_multi
 
 
 def handle_instrument_detached(_addon, alias):
-    del alias_to_order_book[alias]
-    del alias_to_instrument[alias]
+    alias_to_order_book.pop(alias, None)
+    alias_to_instrument.pop(alias, None)
 
 
 def handle_depth_info(_addon, alias, is_bid, price, size):

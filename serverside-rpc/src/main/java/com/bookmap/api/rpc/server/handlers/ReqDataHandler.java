@@ -31,7 +31,7 @@ public class ReqDataHandler implements Handler<ReqDataEvent> {
 	public void handle(ReqDataEvent event) {
 		State state = aliasToState.getOrDefault(event.alias, null);
 		if (state == null) {
-			eventLoop.pushEvent(new ErrorEvent(event.alias, 1, "Instrument is not active", event.requestId));
+			eventLoop.pushEvent(new ErrorEvent(event.alias, 1, "Instrument is not active", event.requestId, false));
 			return;
 		}
 

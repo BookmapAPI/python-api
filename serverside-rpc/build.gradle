@@ -12,7 +12,8 @@ sourceCompatibility = JavaVersion.VERSION_14
 targetCompatibility = JavaVersion.VERSION_14
 
 group 'com.bookmap.api.rpc'
-version '0.1.7'
+// Single source of truth for the version, shared with developer-addon.
+version file("$projectDir/../VERSION").text.trim()
 
 repositories {
     mavenCentral()
@@ -21,7 +22,7 @@ repositories {
     }
 }
 
-def lowerBookmapVersion = '7.5.0.16'
+def lowerBookmapVersion = '7.6.0.16'
 def baseName = "serverside-rpc"
 
 configurations {

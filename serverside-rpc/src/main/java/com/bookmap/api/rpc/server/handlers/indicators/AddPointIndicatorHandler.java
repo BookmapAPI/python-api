@@ -26,7 +26,7 @@ public class AddPointIndicatorHandler implements Handler<AddPointToIndicatorEven
 		State state = aliasToState.get(event.alias);
 		if (state == null) {
 			RpcLogger.warn("No state for " + event.alias);
-			eventLoop.pushEvent(new ErrorEvent(event.alias, 1, "Instrument is not active", -1));
+			eventLoop.pushEvent(new ErrorEvent(event.alias, 1, "Instrument is not active", -1, false));
 			return;
 		}
 

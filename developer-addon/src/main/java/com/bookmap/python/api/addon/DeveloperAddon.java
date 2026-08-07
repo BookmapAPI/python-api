@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -118,7 +119,7 @@ public class DeveloperAddon
         Layer1ApiFinishable,
         Layer1ConfigSettingsInterface {
 
-    private static final String VERSION = "0.1.7";
+    private static final String VERSION = loadVersion();
     private static final String ADDON_NAME = "Python API";
 
     private static File ROOT_DIR = DirectoryResolver.getBookmapDirectoryByName("Python").toFile();
@@ -184,6 +185,17 @@ public class DeveloperAddon
         switchingFiles = false;
         fileNamesWithUnsavedChanges = new HashSet<>();
         fileNameToUnsavedText = new HashMap<>();
+    }
+
+    private static String loadVersion() {
+        Properties properties = new Properties();
+        try (InputStream in = DeveloperAddon.class.getResourceAsStream("/version.properties")) {
+            properties.load(in);
+        } catch (Exception e) {
+            Log.error("Failed to load addon version", e);
+            return "unknown";
+        }
+        return properties.getProperty("version", "unknown");
     }
 
     private ImageIcon loadIcon(String imageFileName) {
